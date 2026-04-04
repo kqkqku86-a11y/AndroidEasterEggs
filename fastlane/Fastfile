@@ -1,49 +1,51 @@
 default_platform(:android)
 
 def is_pre_release_ref(ref_name)
-  # Menentukan pre-release dari tag/branch name
+  # Determine pre-release from tag/branch name
   return ref_name =~ /v?(\d|.)+-([a-z]+)\d*/ ? true : false
 end
 
 platform :android do
   # ==========================
-  # Lane untuk build artifact + zip
+  # Lane for build artifact
   # ==========================
   desc "Build APK and zip entire outputs folder for GitHub Actions"
   lane :artifact_zip do |options|
-    ref_name = options[:ref_name] || "manual_build"
-    is_pre_release = is_pre_release_ref(ref_name)
+  ref_name = options[:ref_name] || "manual_build"
+  is_pre_release = is_pre_release_ref(ref_name)
 
-    # Tentukan variant dan build
-    if is_pre_release
-      gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
-      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
-    else
-      gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
-      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
-    end
+  # Determine variant and build
+  if is_pre_release
+    gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
+    apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
+  else
+    gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
+    apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
+  end
 
-    sh("zip", "-r", zip_file, outputs_folder)
-    puts "✅ Outputs zipped: #{zip_file}"
+  # Optional: just for information, won't cause errors
+  if apk_path.nil? || !File.exist?(apk_path)
+    puts "⚠️ APK not found, but continue..."
+  else
     puts "✅ APK built: #{apk_path}"
   end
 
   # ==========================
-  # Lane untuk Github Release (optional)
+  # Lane for Github Release (optional)
   # ==========================
   desc "Deploy to Github release (optional)"
   lane :release do |options|
     if ENV["GITHUB_TOKEN"].nil? && ENV["GITHUB_API_TOKEN"].nil?
       puts "⚠️ GITHUB_TOKEN env and GITHUB_API_TOKEN env not found, skip!"
       next
-    end
+   end
 
     ref_name = options[:ref_name]
     UI.user_error!("⚠️ github.ref_name not provided") if ref_name.nil?
 
     is_pre_release = is_pre_release_ref(ref_name)
 
-    # Build APK sesuai variant
+    # Build APK according to variant
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
       apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
@@ -60,7 +62,7 @@ platform :android do
       sh("zip", "mapping.zip", File.basename(mapping_path))
     end
 
-    # Upload ke GitHub Release
+    # Upload to GitHub Release
     set_github_release(
       repository_name: "kqkqku86-a11y/AndroidEasterEggs",
       api_bearer: ENV["GITHUB_TOKEN"],
