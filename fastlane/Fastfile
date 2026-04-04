@@ -29,6 +29,7 @@ platform :android do
   else
     puts "✅ APK built: #{apk_path}"
   end
+end
 
   # ==========================
   # Lane for Github Release (optional)
