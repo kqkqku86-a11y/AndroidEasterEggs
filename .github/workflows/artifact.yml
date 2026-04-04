@@ -64,7 +64,7 @@ jobs:
       # Build APK
       - name: Build APK
         run: |
-          bundle exec fastlane artifact
+          bundle exec fastlane realease
 
       # Upload APK as artifact
       - name: Upload APK as artifact
