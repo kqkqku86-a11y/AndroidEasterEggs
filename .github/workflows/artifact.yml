@@ -65,7 +65,6 @@ jobs:
       - name: Build APK & zip outputs
         run: |
           bundle exec fastlane artifact_zip
-          ls -lh build_outputs_*.zip
 
       # Upload zip artifact
       - name: Upload outputs zip as artifact
