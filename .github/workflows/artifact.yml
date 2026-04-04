@@ -38,10 +38,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
+          bundler-cache: false
 
-      - name: Frozen step
-        run: bundle config set frozen false   #  disable frozen mode
+      # Disable frozen mode before bundle install
+      - name: Disable frozen mode
+        run: bundle config set frozen false
 
       - name: Install Fastlane & plugins
         run: |
