@@ -21,20 +21,6 @@ platform :android do
       gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
     end
 
-    # Path outputs folder
-    outputs_folder = "app/build/outputs"
-    zip_file = "build_outputs_#{ref_name}.zip"
-
-    unless Dir.exist?(outputs_folder)
-      UI.user_error!("⚠️ Outputs folder not found at #{outputs_folder}")
-    end
-
-    # Buat zip seluruh folder outputs
-    sh("zip", "-r", zip_file, outputs_folder)
-
-    puts "✅ Outputs zipped: #{zip_file}"
-  end
-
   # ==========================
   # Lane untuk Github Release (optional)
   # ==========================
