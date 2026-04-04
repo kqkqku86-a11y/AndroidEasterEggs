@@ -1,35 +1,42 @@
 default_platform(:android)
 
 def is_pre_release_ref(ref_name)
-  ref_name =~ /v?(\d|.)+-([a-z]+)\d*/ ? true : false
+  # Menentukan pre-release dari tag/branch name
+  return ref_name =~ /v?(\d|.)+-([a-z]+)\d*/ ? true : false
 end
 
 platform :android do
   # ==========================
-  # Lane untuk build artifact
+  # Lane untuk build artifact + zip
   # ==========================
-  desc "Build APK for GitHub Actions Artifact"
-  lane :artifact do |options|
+  desc "Build APK and zip entire outputs folder for GitHub Actions"
+  lane :artifact_zip do |options|
     ref_name = options[:ref_name] || "manual_build"
     is_pre_release = is_pre_release_ref(ref_name)
 
+    # Tentukan variant dan build
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
-      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
       gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
-      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    if apk_path.nil? || !File.exist?(apk_path)
-      UI.user_error!("⚠️ APK not found in the expected folder!")
-    else
-      puts "✅ APK ready at #{apk_path}"
+    # Path outputs folder
+    outputs_folder = "app/build/outputs"
+    zip_file = "build_outputs_#{ref_name}.zip"
+
+    unless Dir.exist?(outputs_folder)
+      UI.user_error!("⚠️ Outputs folder not found at #{outputs_folder}")
     end
+
+    # Buat zip seluruh folder outputs
+    sh("zip", "-r", zip_file, outputs_folder)
+
+    puts "✅ Outputs zipped: #{zip_file}"
   end
 
   # ==========================
-  # Lane untuk GitHub Release
+  # Lane untuk Github Release (optional)
   # ==========================
   desc "Deploy to Github release (optional)"
   lane :release do |options|
@@ -39,13 +46,11 @@ platform :android do
     end
 
     ref_name = options[:ref_name]
-    if ref_name.nil?
-      puts "⚠️ github.ref_name not found, skip!"
-      next
-    end
+    UI.user_error!("⚠️ github.ref_name not provided") if ref_name.nil?
 
     is_pre_release = is_pre_release_ref(ref_name)
 
+    # Build APK sesuai variant
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"])
       apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
@@ -54,35 +59,27 @@ platform :android do
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    if apk_path.nil? || !File.exist?(apk_path)
-      UI.user_error!("⚠️ APK not found in the expected folder!")
-    else
-      puts "✅ APK ready at #{apk_path}"
-    end
+    UI.user_error!("⚠️ APK not found") if apk_path.nil? || !File.exist?(apk_path)
 
+    # mapping.txt
     mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
-    if mapping_path && File.exist?(mapping_path)
-      mapping_dir = File.dirname(mapping_path)
-      mapping_zip = File.join(mapping_dir, "mapping.zip")
-      Dir.chdir(mapping_dir) do
-        sh("zip", "mapping.zip", File.basename(mapping_path))
-      end
-    else
-      mapping_zip = nil
-      puts "⚠️ Mapping file not found, skip zipping."
+    mapping_dir = File.dirname(mapping_path)
+    mapping_zip = File.join(mapping_dir, "mapping.zip")
+    Dir.chdir(mapping_dir) do
+      sh("zip", "mapping.zip", File.basename(mapping_path))
     end
 
-    upload_assets = [apk_path]
-    upload_assets << mapping_zip unless mapping_zip.nil?
-
+    # Upload ke GitHub Release
     set_github_release(
-      repository_name: "kqkqku86-a11y/AndroidEasterEggs",
+      repository_name: "hushenghao/AndroidEasterEggs",
       api_bearer: ENV["GITHUB_TOKEN"],
       is_prerelease: is_pre_release,
       name: ref_name,
       tag_name: ref_name,
       description: "Release APK",
-      upload_assets: upload_assets,
+      upload_assets: [apk_path, mapping_zip],
     )
+
+    puts "✅ GitHub Release created for #{ref_name}"
   end
 end
