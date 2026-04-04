@@ -23,9 +23,6 @@ platform :android do
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    # Pastikan APK ada
-    UI.user_error!("⚠️ APK not found!") if apk_path.nil? || !File.exist?(apk_path)
-
     # Zip seluruh outputs folder
     outputs_folder = "app/build/outputs"
     zip_file = "build_outputs_#{ref_name}.zip"
