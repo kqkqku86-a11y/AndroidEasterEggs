@@ -71,7 +71,7 @@ platform :android do
 
     # Upload ke GitHub Release
     set_github_release(
-      repository_name: "hushenghao/AndroidEasterEggs",
+      repository_name: "kqkqku86-a11y/AndroidEasterEggs",
       api_bearer: ENV["GITHUB_TOKEN"],
       is_prerelease: is_pre_release,
       name: ref_name,
