@@ -7,32 +7,24 @@ end
 
 platform :android do
   # ==========================
-  # Lane untuk build artifact + zip
+  # Lane untuk build artifact (APK saja)
   # ==========================
-  desc "Build APK and zip entire outputs folder for GitHub Actions"
-  lane :artifact_zip do |options|
+  desc "Build APK for GitHub Actions Artifact"
+  lane :artifact do |options|
     ref_name = options[:ref_name] || "manual_build"
     is_pre_release = is_pre_release_ref(ref_name)
 
     # Tentukan variant dan build
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
       gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    # Path outputs folder
-    outputs_folder = "app/build/outputs"
-    zip_file = "build_outputs_#{ref_name}.zip"
-
-    unless Dir.exist?(outputs_folder)
-      UI.user_error!("⚠️ Outputs folder not found at #{outputs_folder}")
-    end
-
-    # Buat zip seluruh folder outputs
-    sh("zip", "-r", zip_file, outputs_folder)
-
-    puts "✅ Outputs zipped: #{zip_file}"
+    UI.user_error!("⚠️ APK not found in release folder!") if apk_path.nil? || !File.exist?(apk_path)
+    puts "✅ APK ready at #{apk_path}"
   end
 
   # ==========================
