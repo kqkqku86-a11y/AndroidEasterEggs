@@ -60,8 +60,6 @@ platform :android do
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    UI.user_error!("⚠️ APK not found!") if apk_path.nil? || !File.exist?(apk_path)
-
     # mapping.txt
     mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
     mapping_dir = File.dirname(mapping_path)
