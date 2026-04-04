@@ -32,8 +32,6 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: gradle
-      - name: Frozen step
-        run: bundle config set frozen false   #  disable frozen mode
         
       # Setup Ruby
       - name: Set up Ruby 3.2
@@ -41,6 +39,9 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
+
+      - name: Frozen step
+        run: bundle config set frozen false   #  disable frozen mode
 
       - name: Install Fastlane & plugins
         run: |
