@@ -1,4 +1,4 @@
-name: Build APK Artifact
+name: Build APK Artifact v4
 
 on:
   push:
@@ -19,10 +19,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
-      # Checkout kode
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v6
 
@@ -41,7 +40,7 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      # Decode keystore dan key.properties
+      # Decode keystore dan key.properties (opsional)
       - name: Decode secrets to files
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -49,23 +48,23 @@ jobs:
         run: |
           echo "$KEY_PROPERTIES_BASE64" | base64 --decode > key.properties
           echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
-          ls -l  # cek file
+          ls -l
 
-      # Install Fastlane dan plugins
+      # Install Fastlane
       - name: Install Fastlane & plugins
         run: |
           bundle install
           bundle exec fastlane install_plugins
 
-      # Build APK tanpa Pgyer
+      # Build APK menggunakan lane artifact
       - name: Build APK
         run: |
-          bundle exec fastlane android release
+          bundle exec fastlane artifact
 
-      # Upload APK sebagai Artifact v4
+      # Upload APK sebagai artifact v4
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: app/build/outputs/**/*.apk
+          path: app/build/outputs/apk/fossProduct/release/*.apk
           retention-days: 7
