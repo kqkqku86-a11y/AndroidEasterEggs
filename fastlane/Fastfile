@@ -20,14 +20,14 @@ platform :android do
 
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
       gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    # Ambil path APK agar bisa diupload ke GitHub artifact
-    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
-    if apk_path.nil? || !File.exist?(apk_path) || !File.file?(apk_path)
-      UI.user_error!("⚠️ GRADLE_APK_OUTPUT_PATH not found!")
+    if apk_path.nil? || !File.exist?(apk_path)
+      UI.user_error!("⚠️ APK not found in the expected folder!")
     else
       puts "✅ APK ready at #{apk_path}"
     end
@@ -50,15 +50,16 @@ platform :android do
     end
 
     is_pre_release = is_pre_release_ref(ref_name)
+
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"])
+      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
       gradle(tasks: ["clean", "app:assembleFossProductRelease"])
+      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
     mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
-
     mapping_dir = File.dirname(mapping_path)
     mapping_zip = File.join(mapping_dir, "mapping.zip")
     Dir.chdir(mapping_dir) do
