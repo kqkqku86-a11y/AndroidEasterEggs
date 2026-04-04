@@ -13,14 +13,31 @@ platform :android do
   lane :artifact_zip do |options|
     ref_name = options[:ref_name] || "manual_build"
     is_pre_release = is_pre_release_ref(ref_name)
-    end
 
     # Tentukan variant dan build
     if is_pre_release
       gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
       gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
+      apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
+
+    # Pastikan APK ada
+    UI.user_error!("⚠️ APK not found!") if apk_path.nil? || !File.exist?(apk_path)
+
+    # Zip seluruh outputs folder
+    outputs_folder = "app/build/outputs"
+    zip_file = "build_outputs_#{ref_name}.zip"
+
+    unless Dir.exist?(outputs_folder)
+      UI.user_error!("⚠️ Outputs folder not found at #{outputs_folder}")
+    end
+
+    sh("zip", "-r", zip_file, outputs_folder)
+    puts "✅ Outputs zipped: #{zip_file}"
+    puts "✅ APK built: #{apk_path}"
+  end
 
   # ==========================
   # Lane untuk Github Release (optional)
@@ -39,14 +56,14 @@ platform :android do
 
     # Build APK sesuai variant
     if is_pre_release
-      gradle(tasks: ["clean", "app:assembleFossBetaRelease"])
+      gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
       apk_path = Dir["app/build/outputs/apk/fossBeta/release/*.apk"].first
     else
-      gradle(tasks: ["clean", "app:assembleFossProductRelease"])
+      gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    UI.user_error!("⚠️ APK not found") if apk_path.nil? || !File.exist?(apk_path)
+    UI.user_error!("⚠️ APK not found!") if apk_path.nil? || !File.exist?(apk_path)
 
     # mapping.txt
     mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
