@@ -1,17 +1,4 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+default_platform(:android)
 
 def is_pre_release_ref(ref_name)
   if (ref_name =~ /v?(\d|.)+-([a-z]+)\d*/)
@@ -21,31 +8,35 @@ def is_pre_release_ref(ref_name)
   end
 end
 
-default_platform(:android)
-
 platform :android do
-  desc "Publish to Pgyer"
-  lane :publish_to_pgyer do
-    if ENV["PGYER_API_KEY"].nil?
-      puts "⚠️ PGYER_API_KEY env not found, skip!"
-      next
+  # ==========================
+  # Lane untuk build artifact
+  # ==========================
+  desc "Build APK for GitHub Actions Artifact"
+  lane :artifact do |options|
+    # Build release APK (tanpa upload ke Pgyer)
+    ref_name = options[:ref_name] || "manual_build"
+    is_pre_release = is_pre_release_ref(ref_name)
+
+    if is_pre_release
+      gradle(tasks: ["clean", "app:assembleFossBetaRelease"], flags: "--no-daemon --stacktrace")
+    else
+      gradle(tasks: ["clean", "app:assembleFossProductRelease"], flags: "--no-daemon --stacktrace")
     end
 
-    gradle(
-      tasks: ["clean", "app:assembleFossAlphaRelease"],
-      flags: "--no-daemon --stacktrace",
-    )
-
-    changelogs_zh = (File.read(Dir["./metadata/android/zh-CN/changelogs/*.txt"][-1]) rescue "No changelog provided")
-    #changelogs_en = (File.read(Dir["./metadata/android/en-US/changelogs/*.txt"][-1]) rescue "No changelog provided")
-    # https://www.pgyer.com/doc/view/fastlane
-    pgyer_answer = pgyer(
-      api_key: ENV["PGYER_API_KEY"],
-      update_description: changelogs_zh,
-    )
+    # Ambil path APK agar bisa diupload ke GitHub artifact
+    apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    if apk_path.nil? || !File.exist?(apk_path) || !File.file?(apk_path)
+      UI.user_error!("⚠️ GRADLE_APK_OUTPUT_PATH not found!")
+    else
+      puts "✅ APK ready at #{apk_path}"
+    end
   end
 
-  desc "Deploy to Github release"
+  # ==========================
+  # Lane untuk GitHub Release
+  # ==========================
+  desc "Deploy to Github release (optional)"
   lane :release do |options|
     if ENV["GITHUB_TOKEN"].nil? && ENV["GITHUB_API_TOKEN"].nil?
       puts "⚠️ GITHUB_TOKEN env and GITHUB_API_TOKEN env not found, skip!"
@@ -65,109 +56,23 @@ platform :android do
       gradle(tasks: ["clean", "app:assembleFossProductRelease"])
     end
 
-    # https://docs.fastlane.tools/actions/gradle/
-    # Lane Variables
     apk_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
     mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
-    if apk_path.nil? || !File.exist?(apk_path) || !File.file?(apk_path)
-      puts "⚠️ GRADLE_APK_OUTPUT_PATH not found, skip!"
-      next
-    end
 
-    # zip mapping.txt
-    mapping_dir = File::dirname(mapping_path)
-    mapping_zip = File::join(mapping_dir, "mapping.zip")
+    mapping_dir = File.dirname(mapping_path)
+    mapping_zip = File.join(mapping_dir, "mapping.zip")
     Dir.chdir(mapping_dir) do
-      sh("zip", "mapping.zip", File::basename(mapping_path))
-    end
-    missing_rules = File::join(mapping_dir, "missing_rules.txt")
-    if File::exist?(missing_rules)
-      sh("cat", missing_rules)
+      sh("zip", "mapping.zip", File.basename(mapping_path))
     end
 
-    changelogs = (File.read(Dir["./metadata/android/en-US/changelogs/*.txt"][-1]) rescue "No changelog provided")
-    # https://docs.fastlane.tools/actions/set_github_release/
     github_release = set_github_release(
       repository_name: "hushenghao/AndroidEasterEggs",
       api_bearer: ENV["GITHUB_TOKEN"],
       is_prerelease: is_pre_release,
       name: ref_name,
       tag_name: ref_name,
-      description: changelogs,
+      description: "Release APK",
       upload_assets: [apk_path, mapping_zip],
     )
-  end
-
-  desc "Deploy to Google Play"
-  lane :deploy do |options|
-    if ENV["JSON_KEY_FILE"].nil?
-      puts "⚠️ JSON_KEY_FILE env not found, skip!"
-      next
-    end
-
-    # https://docs.fastlane.tools/actions/upload_to_play_store/
-    # skip_upload_aab           Whether to skip uploading AAB	                                false
-    # skip_upload_metadata      Whether to skip uploading metadata, changelogs not included	    false
-    # skip_upload_images        Whether to skip uploading images, screenshots not included	    false
-    # skip_upload_screenshots   Whether to skip uploading SCREENSHOTS	                        false
-    # skip_upload_changelogs    Whether to skip uploading changelogs	                        false
-    # sync_image_upload         Whether to use sha256 comparison to skip upload of images and   false
-    #                           screenshots that are already in Play Store
-    # track                     The track of the application to use. The default available      production
-    #                           tracks are: production, beta, alpha, internal
-
-    # all track use "MarketProductRelease" build variant,
-    tasks = ["clean", "app:bundleMarketProductRelease"]
-    ref_name = options[:ref_name]
-    if is_pre_release_ref(ref_name)
-      # Upload new beta version
-      gradle(tasks: tasks)
-      upload_to_play_store(
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true,
-        track: "beta",
-      )
-      next
-    end
-
-    case options[:mode]
-    when "metadata"
-      # Upload metadata
-      upload_to_play_store(
-        skip_upload_aab: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true,
-        skip_upload_changelogs: true,
-      )
-    when "images"
-      # Upload images and screenshots
-
-      # Device art generator
-      #   https://developer.android.google.cn/distribute/marketing-tools/device-art-generator
-      # Screenshot Devices:
-      #   phone:      Pixel 6                     1080x2400
-      #   sevenInch:  7.6" Foldable main screen   1768x2208
-      #   tenInch:    Nexus 9                     1536x2048
-      # Style:
-      #   [ ] Shadow  [x] Screen Glare
-      upload_to_play_store(
-        skip_upload_aab: true,
-        skip_upload_metadata: true,
-        skip_upload_changelogs: true,
-        sync_image_upload: true,
-      )
-    when "full"
-      # Upload All
-      gradle(tasks: tasks)
-      upload_to_play_store
-    else
-      # Upload new version
-      gradle(tasks: tasks)
-      upload_to_play_store(
-        skip_upload_metadata: true,
-        sync_image_upload: true,
-      )
-    end
   end
 end
