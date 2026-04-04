@@ -1,11 +1,7 @@
 default_platform(:android)
 
 def is_pre_release_ref(ref_name)
-  if (ref_name =~ /v?(\d|.)+-([a-z]+)\d*/)
-    return true
-  else
-    return false
-  end
+  ref_name =~ /v?(\d|.)+-([a-z]+)\d*/ ? true : false
 end
 
 platform :android do
@@ -14,7 +10,6 @@ platform :android do
   # ==========================
   desc "Build APK for GitHub Actions Artifact"
   lane :artifact do |options|
-    # Build release APK (tanpa upload ke Pgyer)
     ref_name = options[:ref_name] || "manual_build"
     is_pre_release = is_pre_release_ref(ref_name)
 
@@ -59,21 +54,35 @@ platform :android do
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
-    mapping_dir = File.dirname(mapping_path)
-    mapping_zip = File.join(mapping_dir, "mapping.zip")
-    Dir.chdir(mapping_dir) do
-      sh("zip", "mapping.zip", File.basename(mapping_path))
+    if apk_path.nil? || !File.exist?(apk_path)
+      UI.user_error!("⚠️ APK not found in the expected folder!")
+    else
+      puts "✅ APK ready at #{apk_path}"
     end
 
-    github_release = set_github_release(
-      repository_name: "hushenghao/AndroidEasterEggs",
+    mapping_path = lane_context[SharedValues::GRADLE_MAPPING_TXT_OUTPUT_PATH]
+    if mapping_path && File.exist?(mapping_path)
+      mapping_dir = File.dirname(mapping_path)
+      mapping_zip = File.join(mapping_dir, "mapping.zip")
+      Dir.chdir(mapping_dir) do
+        sh("zip", "mapping.zip", File.basename(mapping_path))
+      end
+    else
+      mapping_zip = nil
+      puts "⚠️ Mapping file not found, skip zipping."
+    end
+
+    upload_assets = [apk_path]
+    upload_assets << mapping_zip unless mapping_zip.nil?
+
+    set_github_release(
+      repository_name: "kqkqku86-a11y/AndroidEasterEggs",
       api_bearer: ENV["GITHUB_TOKEN"],
       is_prerelease: is_pre_release,
       name: ref_name,
       tag_name: ref_name,
       description: "Release APK",
-      upload_assets: [apk_path, mapping_zip],
+      upload_assets: upload_assets,
     )
   end
 end
