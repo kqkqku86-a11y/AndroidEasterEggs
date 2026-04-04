@@ -61,15 +61,16 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
           ls -l
           
-      # Build APK
-      - name: Build APK
+      # Build APK and zip outputs
+      - name: Build APK & zip outputs
         run: |
-          bundle exec fastlane release
+          bundle exec fastlane artifact_zip
+          ls -lh build_outputs_*.zip
 
-      # Upload APK as artifact
-      - name: Upload APK as artifact
+      # Upload zip artifact
+      - name: Upload outputs zip as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-apk
+          name: build-outputs
           path: app/build/outputs/apk/fossProduct/release/*.apk
           retention-days: 7
