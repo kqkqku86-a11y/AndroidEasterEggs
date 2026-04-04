@@ -23,14 +23,6 @@ platform :android do
       apk_path = Dir["app/build/outputs/apk/fossProduct/release/*.apk"].first
     end
 
-    # Zip seluruh outputs folder
-    outputs_folder = "app/build/outputs"
-    zip_file = "build_outputs_#{ref_name}.zip"
-
-    unless Dir.exist?(outputs_folder)
-      UI.user_error!("⚠️ Outputs folder not found at #{outputs_folder}")
-    end
-
     sh("zip", "-r", zip_file, outputs_folder)
     puts "✅ Outputs zipped: #{zip_file}"
     puts "✅ APK built: #{apk_path}"
