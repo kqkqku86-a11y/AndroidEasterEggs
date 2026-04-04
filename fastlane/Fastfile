@@ -13,6 +13,7 @@ platform :android do
   lane :artifact_zip do |options|
     ref_name = options[:ref_name] || "manual_build"
     is_pre_release = is_pre_release_ref(ref_name)
+    end
 
     # Tentukan variant dan build
     if is_pre_release
