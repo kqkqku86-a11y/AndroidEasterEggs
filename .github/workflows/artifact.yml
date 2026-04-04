@@ -1,4 +1,4 @@
-name: Build APK Artifact v4
+name: Build APK Artifact
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      # Decode keystore dan key.properties (opsional)
+      # Decode keystore and key.properties
       - name: Decode secrets to files
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -53,15 +53,16 @@ jobs:
       # Install Fastlane
       - name: Install Fastlane & plugins
         run: |
+          bundle config set frozen false
           bundle install
           bundle exec fastlane install_plugins
-
-      # Build APK menggunakan lane artifact
+          
+      # build apk using fastlane
       - name: Build APK
         run: |
           bundle exec fastlane artifact
 
-      # Upload APK sebagai artifact v4
+      # Upload apk as artifact
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
