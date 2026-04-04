@@ -40,6 +40,13 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
+      - name: Install Fastlane & plugins
+        run: |
+          bundle config set frozen false   #  disable frozen mode
+          bundle config set path vendor/bundle
+          bundle install
+          bundle exec fastlane install_plugins
+
       # Decode keystore and key.properties
       - name: Decode secrets to files
         env:
@@ -49,13 +56,6 @@ jobs:
           echo "$KEY_PROPERTIES_BASE64" | base64 --decode > key.properties
           echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
           ls -l
-
-      # Install Fastlane
-      - name: Install Fastlane & plugins
-        run: |
-          bundle config set frozen false
-          bundle install
-          bundle exec fastlane install_plugins
           
       # build apk using fastlane
       - name: Build APK
