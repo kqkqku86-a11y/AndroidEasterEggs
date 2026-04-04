@@ -1,4 +1,4 @@
-name: Build APK Artifact v4
+name: Build APK Artifact
 
 on:
   push:
@@ -57,12 +57,12 @@ jobs:
           bundle install
           bundle exec fastlane install_plugins
 
-      # Build APK
+      # Build APK tanpa Pgyer
       - name: Build APK
         run: |
-          bundle exec fastlane build  # pastikan lane 'build' Fastlane menghasilkan APK di app/build/outputs/
+          bundle exec fastlane android release
 
-      # Upload APK sebagai Artifact (pakai upload-artifact v4)
+      # Upload APK sebagai Artifact v4
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
