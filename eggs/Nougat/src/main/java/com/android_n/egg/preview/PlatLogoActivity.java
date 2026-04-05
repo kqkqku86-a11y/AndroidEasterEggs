@@ -1,6 +1,5 @@
 package com.android_n.egg.preview;
 
-import com.dede.android_eggs.R;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
