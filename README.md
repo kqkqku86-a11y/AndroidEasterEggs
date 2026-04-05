@@ -7,7 +7,7 @@
 **[English](./README.md) • [中文](./README_zh.md) • [日本語](./README_ja.md)**
 
 
-[![Hits](https://hits.sh/github.com/hushenghao/AndroidEasterEggs.svg?style=for-the-badge&label=page%20views&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNNDgwLTMyMHE3NSAwIDEyNy41LTUyLjVUNjYwLTUwMHEwLTc1LTUyLjUtMTI3LjVUNDgwLTY4MHEtNzUgMC0xMjcuNSA1Mi41VDMwMC01MDBxMCA3NSA1Mi41IDEyNy41VDQ4MC0zMjBabTAtNzJxLTQ1IDAtNzYuNS0zMS41VDM3Mi01MDBxMC00NSAzMS41LTc2LjVUNDgwLTYwOHE0NSAwIDc2LjUgMzEuNVQ1ODgtNTAwcTAgNDUtMzEuNSA3Ni41VDQ4MC0zOTJabTAgMTkycS0xNDYgMC0yNjYtODEuNVQ0MC01MDBxNTQtMTM3IDE3NC0yMTguNVQ0ODAtODAwcTE0NiAwIDI2NiA4MS41VDkyMC01MDBxLTU0IDEzNy0xNzQgMjE4LjVUNDgwLTIwMFoiLz48L3N2Zz4%3D)](https://hits.sh/github.com/hushenghao/AndroidEasterEggs/)
+<a href="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs/"><img alt="Hits" src="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs.svg"/></a>(https://hits.sh/github.com/hushenghao/AndroidEasterEggs/)
 ![GitHub downloads](https://img.shields.io/github/downloads/hushenghao/AndroidEasterEggs/total?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTYwLTgwdi04MGg2NDB2ODBIMTYwWm0zMjAtMTYwTDIwMC02MDBoMTYwdi0yODBoMjQwdjI4MGgxNjBMNDgwLTI0MFoiLz48L3N2Zz4%3D&label=Downloads&style=for-the-badge)
 ![Play Store installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.dede.android_eggs%26l%3DInstalls%26m%3D%24shortinstalls&style=for-the-badge&logo=googleplay)
 </br>
