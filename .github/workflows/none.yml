@@ -1,0 +1,26 @@
+name: Delete folder
+
+on:
+  workflow_dispatch: # Can be run manually from GitHub
+
+jobs:
+  delete-folder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Delete /preview folder
+        run: |
+          rm -rf eggs/Nougat/src/main/java/com/android_n/egg/preview
+
+      - name: Commit & Push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Delete /preview folder via GitHub Actions" || echo "No changes to commit"
+          git push
+        env:
+          # This token is to be able to push to the repo
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
