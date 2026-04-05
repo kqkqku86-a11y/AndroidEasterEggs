@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.internal.app;
+package com.android_t.egg;
+
 import static android.graphics.PixelFormat.TRANSLUCENT;
+
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -40,25 +42,21 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.AnalogClock;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import com.android.internal.R;
+
 import org.json.JSONObject;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-/**
- * @hide
- */
+
 public class PlatLogoActivity extends Activity {
     private static final String TAG = "PlatLogoActivity";
     private static final String S_EGG_UNLOCK_SETTING = "egg_mode_s";
     private SettableAnalogClock mClock;
     private ImageView mLogo;
     private BubblesDrawable mBg;
+
     @Override
     protected void onPause() {
         super.onPause();
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +75,7 @@ public class PlatLogoActivity extends Activity {
         layout.addView(mClock, lp);
         mLogo = new ImageView(this);
         mLogo.setVisibility(View.GONE);
-        mLogo.setImageResource(R.drawable.platlogo);
+        mLogo.setImageResource(R.drawable.t_android_logo); // ganti dari R.drawable.platlogo
         layout.addView(mLogo, lp);
         mBg = new BubblesDrawable();
         mBg.setLevel(0);
@@ -88,9 +86,11 @@ public class PlatLogoActivity extends Activity {
         layout.setOnLongClickListener(mBg);
         setContentView(layout);
     }
+
     private boolean shouldWriteSettings() {
         return getPackageName().equals("android");
     }
+
     private void launchNextStage(boolean locked) {
         mClock.animate()
                 .alpha(0f).scaleX(0.5f).scaleY(0.5f)
@@ -131,12 +131,14 @@ public class PlatLogoActivity extends Activity {
                             | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .addCategory("com.android.internal.category.PLATLOGO"));
         } catch (ActivityNotFoundException ex) {
-            Log.e("com.android.internal.app.PlatLogoActivity", "No more eggs.");
+            Log.e(TAG, "No more eggs.");
         }
         //finish(); // no longer finish upon unlock; it's fun to frob the dial
     }
+
     static final String TOUCH_STATS = "touch.stats";
     double mPressureMin = 0, mPressureMax = -1;
+
     private void measureTouchPressure(MotionEvent event) {
         final float pressure = event.getPressure();
         switch (event.getActionMasked()) {
@@ -151,6 +153,7 @@ public class PlatLogoActivity extends Activity {
                 break;
         }
     }
+
     private void syncTouchPressure() {
         try {
             final String touchDataJson = Settings.System.getString(
@@ -172,55 +175,43 @@ public class PlatLogoActivity extends Activity {
                 }
             }
         } catch (Exception e) {
-            Log.e("com.android.internal.app.PlatLogoActivity", "Can't write touch settings", e);
+            Log.e(TAG, "Can't write touch settings", e);
         }
     }
+
     @Override
     public void onStart() {
         super.onStart();
         syncTouchPressure();
     }
+
     @Override
     public void onStop() {
         syncTouchPressure();
         super.onStop();
     }
+
     /**
      * Subclass of AnalogClock that allows the user to flip up the glass and adjust the hands.
      */
     public class SettableAnalogClock extends AnalogClock {
         private int mOverrideHour = -1;
         private int mOverrideMinute = -1;
-        private boolean mOverride = false;
+
         public SettableAnalogClock(Context context) {
             super(context);
         }
-        @Override
-        protected Instant now() {
-            final Instant realNow = super.now();
-            final ZoneId tz = Clock.systemDefaultZone().getZone();
-            final ZonedDateTime zdTime = realNow.atZone(tz);
-            if (mOverride) {
-                if (mOverrideHour < 0) {
-                    mOverrideHour = zdTime.getHour();
-                }
-                return Clock.fixed(zdTime
-                        .withHour(mOverrideHour)
-                        .withMinute(mOverrideMinute)
-                        .withSecond(0)
-                        .toInstant(), tz).instant();
-            } else {
-                return realNow;
-            }
-        }
+
+        // now() adalah internal API AOSP, tidak tersedia di public SDK — dihapus
+
         double toPositiveDegrees(double rad) {
             return (Math.toDegrees(rad) + 360 - 90) % 360;
         }
+
         @Override
         public boolean onTouchEvent(MotionEvent ev) {
             switch (ev.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    mOverride = true;
                     // pass through
                 case MotionEvent.ACTION_MOVE:
                     measureTouchPressure(ev);
@@ -247,7 +238,7 @@ public class PlatLogoActivity extends Activity {
                         } else {
                             performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
                         }
-                        onTimeChanged();
+                        // onTimeChanged() dihapus — tidak tersedia di public SDK
                         postInvalidate();
                     }
                     return true;
@@ -262,6 +253,7 @@ public class PlatLogoActivity extends Activity {
             return false;
         }
     }
+
     private static final String[][] EMOJI_SETS = {
             {"🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍑",
                     "🍒", "🍓", "🫐", "🥝"},
@@ -271,8 +263,8 @@ public class PlatLogoActivity extends Activity {
                     "🤪", "😝", "🤑", "🤗", "🤭", "🫢", "🫣", "🤫", "🤔", "🫡", "🤐", "🤨", "😐",
                     "😑", "😶", "🫥", "😏", "😒", "🙄", "😬", "🤥", "😌", "😔", "😪", "🤤", "😴",
                     "😷"},
-            { "🤩", "😍", "🥰", "😘", "🥳", "🥲", "🥹" },
-            { "🫠" },
+            {"🤩", "😍", "🥰", "😘", "🥳", "🥲", "🥹"},
+            {"🫠"},
             {"💘", "💝", "💖", "💗", "💓", "💞", "💕", "❣", "💔", "❤", "🧡", "💛",
                     "💚", "💙", "💜", "🤎", "🖤", "🤍"},
             // {"👁", "️🫦", "👁️"}, // this one is too much
@@ -287,11 +279,14 @@ public class PlatLogoActivity extends Activity {
             {"🌺", "🌸", "💮", "🏵️", "🌼", "🌿"},
             {"🐢", "✨", "🌟", "👑"}
     };
+
     static class Bubble {
         public float x, y, r;
         public int color;
-        public String text = null;
+        public CharSequence text = null;
+        public Drawable drawable = null; // tambahan untuk COLREmojiCompat
     }
+
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         private static final int MAX_BUBBS = 2000;
         private final int[] mColorIds = {
@@ -310,6 +305,7 @@ public class PlatLogoActivity extends Activity {
         public float avoid = 0f;
         public float padding = 0f;
         public float minR = 0f;
+
         BubblesDrawable() {
             for (int i = 0; i < mColorIds.length; i++) {
                 mColors[i] = getColor(mColorIds[i]);
@@ -318,6 +314,7 @@ public class PlatLogoActivity extends Activity {
                 mBubbs[j] = new Bubble();
             }
         }
+
         @Override
         public void draw(Canvas canvas) {
             if (getLevel() == 0) return;
@@ -329,8 +326,8 @@ public class PlatLogoActivity extends Activity {
                 if (mBubbs[j].color == 0 || mBubbs[j].r == 0) continue;
                 if (mBubbs[j].text != null) {
                     mPaint.setTextSize(mBubbs[j].r * 1.75f);
-                    canvas.drawText(mBubbs[j].text, mBubbs[j].x,
-                            mBubbs[j].y  + mBubbs[j].r * f * 0.6f, mPaint);
+                    canvas.drawText(mBubbs[j].text.toString(), mBubbs[j].x,
+                            mBubbs[j].y + mBubbs[j].r * f * 0.6f, mPaint);
                 } else {
                     mPaint.setColor(mBubbs[j].color);
                     canvas.drawCircle(mBubbs[j].x, mBubbs[j].y, mBubbs[j].r * f, mPaint);
@@ -338,6 +335,7 @@ public class PlatLogoActivity extends Activity {
                 drawn++;
             }
         }
+
         public void chooseEmojiSet() {
             mEmojiSet = (int) (Math.random() * EMOJI_SETS.length);
             final String[] emojiSet = EMOJI_SETS[mEmojiSet];
@@ -346,16 +344,19 @@ public class PlatLogoActivity extends Activity {
             }
             invalidateSelf();
         }
+
         @Override
         protected boolean onLevelChange(int level) {
             invalidateSelf();
             return true;
         }
+
         @Override
         protected void onBoundsChange(Rect bounds) {
             super.onBoundsChange(bounds);
             randomize();
         }
+
         private void randomize() {
             final float w = getBounds().width();
             final float h = getBounds().height();
@@ -369,16 +370,11 @@ public class PlatLogoActivity extends Activity {
                 mNumBubbs++;
             }
             for (int j = 0; j < MAX_BUBBS; j++) {
-                // a simple but time-tested bubble-packing algorithm:
-                // 1. pick a spot
-                // 2. shrink the bubble until it is no longer overlapping any other bubble
-                // 3. if the bubble hasn't popped, keep it
                 int tries = 5;
                 while (tries-- > 0) {
                     float x = (float) Math.random() * w;
                     float y = (float) Math.random() * h;
                     float r = Math.min(Math.min(x, w - x), Math.min(y, h - y));
-                    // shrink radius to fit other bubbs
                     for (int i = 0; i < mNumBubbs; i++) {
                         r = (float) Math.min(r,
                                 Math.hypot(x - mBubbs[i].x, y - mBubbs[i].y) - mBubbs[i].r
@@ -386,7 +382,6 @@ public class PlatLogoActivity extends Activity {
                         if (r < minR) break;
                     }
                     if (r >= minR) {
-                        // we have found a spot for this bubble to live, let's save it and move on
                         r = Math.min(maxR, r);
                         mBubbs[mNumBubbs].x = x;
                         mBubbs[mNumBubbs].y = y;
@@ -400,14 +395,18 @@ public class PlatLogoActivity extends Activity {
             Log.v(TAG, String.format("successfully placed %d bubbles (%d%%)",
                     mNumBubbs, (int) (100f * mNumBubbs / MAX_BUBBS)));
         }
+
         @Override
         public void setAlpha(int alpha) { }
+
         @Override
         public void setColorFilter(ColorFilter colorFilter) { }
+
         @Override
         public int getOpacity() {
             return TRANSLUCENT;
         }
+
         @Override
         public boolean onLongClick(View v) {
             if (getLevel() == 0) return false;
