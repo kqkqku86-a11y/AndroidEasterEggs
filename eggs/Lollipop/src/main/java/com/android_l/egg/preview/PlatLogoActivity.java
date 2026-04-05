@@ -80,9 +80,7 @@ public class PlatLogoActivity extends Activity {
         private Runnable mRunnable = new Runnable() {
             @Override
             public void run() {
-                mText.setText(String.format("android_%s.flv - build %s",
-                        Build.VERSION.CODENAME,
-                        Build.VERSION.INCREMENTAL));
+                mText.setText(String.format("android_L.flv - build 1236599")
                 final int N = getChildCount();
                 final float parentw = getMeasuredWidth();
                 final float parenth = getMeasuredHeight();
