@@ -7,7 +7,7 @@
 **[English](./README.md) • [中文](./README_zh.md) • [日本語](./README_ja.md)**
 
 
-<a href="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs/"><img alt="Hits" src="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs.svg?style=for-the-badge&labelColor=4f3c3c"/></a>
+<a href="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs/"><img alt="Hits" src="https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs.svg?style=for-the-badge&label=Views"/></a>
 ![GitHub downloads](https://img.shields.io/github/downloads/hushenghao/AndroidEasterEggs/total?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTYwLTgwdi04MGg2NDB2ODBIMTYwWm0zMjAtMTYwTDIwMC02MDBoMTYwdi0yODBoMjQwdjI4MGgxNjBMNDgwLTI0MFoiLz48L3N2Zz4%3D&label=Downloads&style=for-the-badge)
 ![Play Store installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.dede.android_eggs%26l%3DInstalls%26m%3D%24shortinstalls&style=for-the-badge&logo=googleplay)
 </br>
