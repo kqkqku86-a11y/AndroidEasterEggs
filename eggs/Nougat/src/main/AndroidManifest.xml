@@ -92,13 +92,5 @@ Copyright (C) 2016 The Android Open Source Project
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
-
-        <activity
-            android:name=".preview.PlatLogoActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="true"
-            android:icon="@drawable/n_icon"
-            android:label="@string/n_app_name"
-            android:theme="@android:style/Theme.Wallpaper.NoTitleBar.Fullscreen" />
     </application>
 </manifest>
