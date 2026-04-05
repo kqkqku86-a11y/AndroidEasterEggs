@@ -64,6 +64,7 @@ jobs:
       # Build APK and zip outputs
       - name: Build APK & zip outputs
         run: |
+          fastlane android bump_version version_name:4.4.5-alpha version_code:75.1
           bundle exec fastlane artifact_zip
 
       # Upload zip artifact
