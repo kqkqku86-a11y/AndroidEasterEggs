@@ -95,8 +95,10 @@ public class PlatLogoActivity extends Activity {
                     final float x = (float) Math.random() * (parentw - w);
                     final float y = (float) Math.random() * (parenth - h);
 
-                    // add animation
-                    RefreshTorsoImpls.get(true).refresh(v, w, h, x, y);
+                    // without animation
+                    v.layoutParams = new FrameLayout.LayoutParams(w, h);
+                    v.x = x;
+                    v.y = y;
                 }
 
                 if (mAnimate) postDelayed(this, 1000);
