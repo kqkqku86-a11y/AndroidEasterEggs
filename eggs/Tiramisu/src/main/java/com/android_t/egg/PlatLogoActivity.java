@@ -280,11 +280,11 @@ public class PlatLogoActivity extends Activity {
             {"🐢", "✨", "🌟", "👑"}
     };
 
-    static class Bubble {
-        public float x, y, r;
-        public int color;
-        public CharSequence text = null;
-        public Drawable drawable = null; // tambahan untuk COLREmojiCompat
+    public static class Bubble {
+    public float x, y, r;
+    public int color;
+    public CharSequence text = null;
+    public Drawable drawable = null;
     }
 
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
