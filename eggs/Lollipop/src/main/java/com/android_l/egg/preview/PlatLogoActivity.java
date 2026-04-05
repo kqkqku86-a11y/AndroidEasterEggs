@@ -96,9 +96,9 @@ public class PlatLogoActivity extends Activity {
                     final float y = (float) Math.random() * (parenth - h);
 
                     // without animation
-                    v.layoutParams = new FrameLayout.LayoutParams(w, h);
-                    v.x = x;
-                    v.y = y;
+                    v.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+                    v.setX(x);
+                    v.setY(y);
                 }
 
                 if (mAnimate) postDelayed(this, 1000);
