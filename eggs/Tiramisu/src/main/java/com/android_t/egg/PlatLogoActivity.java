@@ -18,6 +18,8 @@ package com.android_t.egg;
 import static android.graphics.PixelFormat.TRANSLUCENT;
 
 import android.animation.ObjectAnimator;
+import androidx.core.content.ContextCompat;
+import android.graphics.Color;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
