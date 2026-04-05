@@ -4,7 +4,7 @@
 
 <div align="center">
 
-**[English](./README.md) • [中文](./README_zh.md) • [日本語](./README_ja.md)**
+**[English](./README.md) • [Indonesia](./README_id.md)**
 
 
 [![Hits](https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs.svg?style=for-the-badge&label=Page%20Views)](https://hits.sh/github.com/kqkqku86-a11y/AndroidEasterEggs/)
