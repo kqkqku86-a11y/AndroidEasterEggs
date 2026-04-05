@@ -360,7 +360,7 @@ public class PlatLogoActivity extends Activity {
 
         BubblesDrawable() {
             for (int i = 0; i < mColorIds.length; i++) {
-                mColors[i] = ContextCompat.getColor(this, mColorIds[i]);
+                mColors[i] = ContextCompat.getColor(PlatLogoActivity.this, mColorIds[i]);
             }
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
