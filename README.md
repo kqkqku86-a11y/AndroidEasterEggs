@@ -21,9 +21,9 @@ This project contains the complete code for all Android Easter eggs, aiming to o
 
 <div align="center">
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/hushenghao/AndroidEasterEggs?logo=github&label=release fork&style=for-the-badge)](https://github.com/hushenghao/AndroidEasterEggs/releases/latest)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/hushenghao/AndroidEasterEggs?logo=github&label=release-fork&style=for-the-badge)](https://github.com/kqkqku86-a11y/AndroidEasterEggs/releases/latest)
 
-[![GitHub release (includes prereleases)](https://img.shields.io/github/v/release/kqkqku86-a11y/AndroidEasterEggs?logo=github&label=Beta fork&include_prereleases&style=for-the-badge)](https://github.com/kqkqku86-a11y/AndroidEasterEggs/releases)
+[![GitHub release (includes prereleases)](https://img.shields.io/github/v/release/kqkqku86-a11y/AndroidEasterEggs?logo=github&label=Beta-fork&include_prereleases&style=for-the-badge)](https://github.com/kqkqku86-a11y/AndroidEasterEggs/releases)
 
 </div>
 
