@@ -20,14 +20,14 @@ android {
             "in-rID", "hr-rHR", "la-rLA", "el-rGR", "no-rNO",
             "ja-rJP", "ko-rKR", "vi-rVN", "th-rTH", "fil-rPH", "lo-rLA",
             "ar-rSA", "cs-rCZ", "ta-rIN", "ro-rRO", "sv-rSE", "my-rMM",
-            "bn-rBD", "sq", "bg-rBG",
+            "bn-rBD", "sq"
         )
     }
 
     defaultConfig {
         applicationId = "com.dede.android_eggs"
-        versionCode = 74
-        versionName = "4.5.0"
+        versionCode = 75
+        versionName = "4.4.5-alpha-fork"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         base.archivesName.set("easter_eggs_${versionName}_${versionCode}")
@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.androidx.livedata)
     implementation(libs.androidx.startup)
     implementation(libs.androidx.splashscreen)
-    implementation(libs.androidx.dynamicanimation)
     implementation(libs.androidx.compose.activity)
     implementation(libs.androidx.compose.lifecycle)
     implementation(libs.androidx.compose.viewmodel)
@@ -130,15 +129,14 @@ dependencies {
     implementation(project(":core:custom-tab-browser"))
 
     implementation(project(":feature:cat-editor"))
-    implementation(project(":feature:analog-clock-widget"))
+    implementation(project(":feature:widget"))
     implementation(project(":feature:neko-controls-widget"))
     implementation(project(":feature:crash"))
     implementation(project(":feature:embedding-splits"))
     implementation(project(":feature:libraries-info"))
 
     implementation(project(":eggs:RocketLauncher"))
-    //implementation(project(":eggs:AndroidNext"))
-    implementation(project(":eggs:CinnamonBun"))
+    implementation(project(":eggs:AndroidNext"))
     implementation(project(":eggs:Baklava"))
     implementation(project(":eggs:VanillaIceCream"))
     implementation(project(":eggs:UpsideDownCake"))
