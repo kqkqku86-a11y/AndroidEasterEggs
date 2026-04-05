@@ -340,12 +340,12 @@ public class PlatLogoActivity extends Activity {
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         private static final int MAX_BUBBS = 2000;
         private final int[] mColorIds = {
-                android.R.color.system_accent3_400,
-                android.R.color.system_accent3_500,
-                android.R.color.system_accent3_600,
-                android.R.color.system_accent2_400,
-                android.R.color.system_accent2_500,
-                android.R.color.system_accent2_600,
+                android.R.color.holo_blue_light,
+                android.R.color.holo_blue_dark,
+                android.R.color.holo_green_light,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_red_light,
+                android.R.color.holo_red_dark,
         };
         private int[] mColors = new int[mColorIds.length];
         private int mEmojiSet = -1;
@@ -358,7 +358,7 @@ public class PlatLogoActivity extends Activity {
 
         BubblesDrawable() {
             for (int i = 0; i < mColorIds.length; i++) {
-                mColors[i] = getColor(mColorIds[i]);
+                mColors[i] = ContextCompat.getColor(this, mColorIds[i]);
             }
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
