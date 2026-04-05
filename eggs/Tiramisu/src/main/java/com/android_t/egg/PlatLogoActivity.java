@@ -194,67 +194,117 @@ public class PlatLogoActivity extends Activity {
     /**
      * Subclass of AnalogClock that allows the user to flip up the glass and adjust the hands.
      */
-    public class SettableAnalogClock extends AnalogClock {
-        private int mOverrideHour = -1;
-        private int mOverrideMinute = -1;
+    
 
-        public SettableAnalogClock(Context context) {
-            super(context);
-        }
+    private static final Stripublic class SettableAnalogClock extends View {
+    private int mOverrideHour = 10;
+    private int mOverrideMinute = 10;
+    private final Paint mPaintCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mPaintHour = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mPaintMinute = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mPaintCenter = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        // now() adalah internal API AOSP, tidak tersedia di public SDK — dihapus
-
-        double toPositiveDegrees(double rad) {
-            return (Math.toDegrees(rad) + 360 - 90) % 360;
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent ev) {
-            switch (ev.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    // pass through
-                case MotionEvent.ACTION_MOVE:
-                    measureTouchPressure(ev);
-                    float x = ev.getX();
-                    float y = ev.getY();
-                    float cx = getWidth() / 2f;
-                    float cy = getHeight() / 2f;
-                    float angle = (float) toPositiveDegrees(Math.atan2(x - cx, y - cy));
-                    int minutes = (75 - (int) (angle / 6)) % 60;
-                    int minuteDelta = minutes - mOverrideMinute;
-                    if (minuteDelta != 0) {
-                        if (Math.abs(minuteDelta) > 45 && mOverrideHour >= 0) {
-                            int hourDelta = (minuteDelta < 0) ? 1 : -1;
-                            mOverrideHour = (mOverrideHour + 24 + hourDelta) % 24;
-                        }
-                        mOverrideMinute = minutes;
-                        if (mOverrideMinute == 0) {
-                            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                            if (getScaleX() == 1f) {
-                                setScaleX(1.05f);
-                                setScaleY(1.05f);
-                                animate().scaleX(1f).scaleY(1f).setDuration(150).start();
-                            }
-                        } else {
-                            performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-                        }
-                        // onTimeChanged() dihapus — tidak tersedia di public SDK
-                        postInvalidate();
-                    }
-                    return true;
-                case MotionEvent.ACTION_UP:
-                    if (mOverrideMinute == 0 && (mOverrideHour % 12) == 1) {
-                        Log.v(TAG, "13:00");
-                        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                        launchNextStage(false);
-                    }
-                    return true;
-            }
-            return false;
-        }
+    public SettableAnalogClock(Context context) {
+        super(context);
+        mPaintCircle.setColor(0xFFDDDDDD);
+        mPaintCircle.setStyle(Paint.Style.STROKE);
+        mPaintHour.setColor(0xFF222222);
+        mPaintHour.setStrokeCap(Paint.Cap.ROUND);
+        mPaintHour.setStyle(Paint.Style.STROKE);
+        mPaintMinute.setColor(0xFF222222);
+        mPaintMinute.setStrokeCap(Paint.Cap.ROUND);
+        mPaintMinute.setStyle(Paint.Style.STROKE);
+        mPaintCenter.setColor(0xFF222222);
+        mPaintCenter.setStyle(Paint.Style.FILL);
     }
 
-    private static final String[][] EMOJI_SETS = {
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        final float cx = getWidth() / 2f;
+        final float cy = getHeight() / 2f;
+        final float radius = Math.min(cx, cy) * 0.9f;
+        final float strokeWidth = radius * 0.04f;
+
+        // Lingkaran jam
+        mPaintCircle.setStrokeWidth(strokeWidth);
+        canvas.drawCircle(cx, cy, radius, mPaintCircle);
+
+        // Jarum menit
+        final float minAngle = (float) Math.toRadians(mOverrideMinute * 6 - 90);
+        final float minLen = radius * 0.75f;
+        mPaintMinute.setStrokeWidth(strokeWidth * 1.2f);
+        canvas.drawLine(cx, cy,
+                cx + (float) Math.cos(minAngle) * minLen,
+                cy + (float) Math.sin(minAngle) * minLen,
+                mPaintMinute);
+
+        // Jarum jam
+        final float hourAngle = (float) Math.toRadians((mOverrideHour % 12) * 30 + mOverrideMinute * 0.5f - 90);
+        final float hourLen = radius * 0.5f;
+        mPaintHour.setStrokeWidth(strokeWidth * 2f);
+        canvas.drawLine(cx, cy,
+                cx + (float) Math.cos(hourAngle) * hourLen,
+                cy + (float) Math.sin(hourAngle) * hourLen,
+                mPaintHour);
+
+        // Titik tengah
+        canvas.drawCircle(cx, cy, strokeWidth * 1.5f, mPaintCenter);
+    }
+
+    double toPositiveDegrees(double rad) {
+        return (Math.toDegrees(rad) + 360 - 90) % 360;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        switch (ev.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                if (mOverrideHour < 0) {
+                    java.util.Calendar now = java.util.Calendar.getInstance();
+                    mOverrideHour = now.get(java.util.Calendar.HOUR_OF_DAY);
+                    mOverrideMinute = now.get(java.util.Calendar.MINUTE);
+                }
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                measureTouchPressure(ev);
+                float x = ev.getX();
+                float y = ev.getY();
+                float cx = getWidth() / 2f;
+                float cy = getHeight() / 2f;
+                float angle = (float) toPositiveDegrees(Math.atan2(x - cx, y - cy));
+                int minutes = (75 - (int) (angle / 6)) % 60;
+                int minuteDelta = minutes - mOverrideMinute;
+                if (minuteDelta != 0) {
+                    if (Math.abs(minuteDelta) > 45 && mOverrideHour >= 0) {
+                        int hourDelta = (minuteDelta < 0) ? 1 : -1;
+                        mOverrideHour = (mOverrideHour + 24 + hourDelta) % 24;
+                    }
+                    mOverrideMinute = minutes;
+                    if (mOverrideMinute == 0) {
+                        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                        if (getScaleX() == 1f) {
+                            setScaleX(1.05f);
+                            setScaleY(1.05f);
+                            animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                        }
+                    } else {
+                        performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+                    }
+                    postInvalidate();
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                if (mOverrideMinute == 0 && (mOverrideHour % 12) == 1) {
+                    Log.v(TAG, "13:00");
+                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                    launchNextStage(false);
+                }
+                return true;
+        }
+        return false;
+    }
+                            }ng[][] EMOJI_SETS = {
             {"🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍑",
                     "🍒", "🍓", "🫐", "🥝"},
             {"😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾"},
