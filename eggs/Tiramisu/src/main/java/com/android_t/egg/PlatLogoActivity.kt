@@ -32,6 +32,7 @@ class PlatLogoActivity : Activity() {
     companion object {
         private const val TAG = "PlatLogoActivity"
         private const val S_EGG_UNLOCK_SETTING = "egg_mode_s"
+        const val TOUCH_STATS = "touch.stats"
     }
 
     // ---------------------------------------------------------------
@@ -43,7 +44,7 @@ class PlatLogoActivity : Activity() {
         var r: Float = 0f
         var color: Int = 0
         var text: CharSequence? = null
-        var drawable: Drawable? = null  // ← field tambahan yang dibutuhkan COLREmojiCompat
+        var drawable: Drawable? = null
     }
 
     private lateinit var mClock: SettableAnalogClock
@@ -143,7 +144,10 @@ class PlatLogoActivity : Activity() {
         val pressure = event.pressure
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                if (mPressureMax < 0) { mPressureMin = pressure.toDouble(); mPressureMax = pressure.toDouble() }
+                if (mPressureMax < 0) {
+                    mPressureMin = pressure.toDouble()
+                    mPressureMax = pressure.toDouble()
+                }
             }
             MotionEvent.ACTION_MOVE -> {
                 if (pressure < mPressureMin) mPressureMin = pressure.toDouble()
@@ -170,8 +174,15 @@ class PlatLogoActivity : Activity() {
         }
     }
 
-    override fun onStart() { super.onStart(); syncTouchPressure() }
-    override fun onStop() { syncTouchPressure(); super.onStop() }
+    override fun onStart() {
+        super.onStart()
+        syncTouchPressure()
+    }
+
+    override fun onStop() {
+        syncTouchPressure()
+        super.onStop()
+    }
 
     // ---------------------------------------------------------------
     // SettableAnalogClock
@@ -190,7 +201,6 @@ class PlatLogoActivity : Activity() {
             return when (ev.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     if (mOverrideHour < 0) {
-                        // derive hour & minute from current time
                         val now = java.util.Calendar.getInstance()
                         mOverrideHour = now.get(java.util.Calendar.HOUR_OF_DAY)
                         mOverrideMinute = now.get(java.util.Calendar.MINUTE)
@@ -198,9 +208,13 @@ class PlatLogoActivity : Activity() {
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val x = ev.x; val y = ev.y
-                    val cx = width / 2f; val cy = height / 2f
-                    val angle = toPositiveDegrees(atan2((x - cx).toDouble(), (y - cy).toDouble())).toFloat()
+                    val x = ev.x
+                    val y = ev.y
+                    val cx = width / 2f
+                    val cy = height / 2f
+                    val angle = toPositiveDegrees(
+                        atan2((x - cx).toDouble(), (y - cy).toDouble())
+                    ).toFloat()
                     val minutes = (75 - (angle / 6).toInt()) % 60
                     val minuteDelta = minutes - mOverrideMinute
                     if (minuteDelta != 0) {
@@ -212,7 +226,8 @@ class PlatLogoActivity : Activity() {
                         if (mOverrideMinute == 0) {
                             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                             if (scaleX == 1f) {
-                                scaleX = 1.05f; scaleY = 1.05f
+                                scaleX = 1.05f
+                                scaleY = 1.05f
                                 animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                             }
                         } else {
@@ -266,10 +281,20 @@ class PlatLogoActivity : Activity() {
             }
         }
 
-        override fun onLevelChange(level: Int): Boolean { invalidateSelf(); return true }
-        override fun onBoundsChange(bounds: Rect) { super.onBoundsChange(bounds); randomize() }
+        override fun onLevelChange(level: Int): Boolean {
+            invalidateSelf()
+            return true
+        }
+
+        override fun onBoundsChange(bounds: Rect) {
+            super.onBoundsChange(bounds)
+            randomize()
+        }
+
         override fun setAlpha(alpha: Int) {}
+
         override fun setColorFilter(cf: ColorFilter?) {}
+
         @Deprecated("Deprecated in Java")
         override fun getOpacity() = PixelFormat.TRANSLUCENT
 
@@ -285,7 +310,12 @@ class PlatLogoActivity : Activity() {
             val maxR = min(w, h) / 3f
             mNumBubbs = 0
             if (avoid > 0f) {
-                mBubbs[mNumBubbs].apply { x = w / 2f; y = h / 2f; r = avoid; color = 0 }
+                mBubbs[mNumBubbs].apply {
+                    x = w / 2f
+                    y = h / 2f
+                    r = avoid
+                    color = 0
+                }
                 mNumBubbs++
             }
             for (j in 0 until MAX_BUBBS) {
@@ -295,12 +325,21 @@ class PlatLogoActivity : Activity() {
                     val by = (Math.random() * h).toFloat()
                     var r = min(min(bx, w - bx), min(by, h - by))
                     for (i in 0 until mNumBubbs) {
-                        r = min(r, (hypot((bx - mBubbs[i].x).toDouble(), (by - mBubbs[i].y).toDouble()) - mBubbs[i].r - padding).toFloat())
+                        r = min(
+                            r,
+                            (hypot(
+                                (bx - mBubbs[i].x).toDouble(),
+                                (by - mBubbs[i].y).toDouble()
+                            ) - mBubbs[i].r - padding).toFloat()
+                        )
                         if (r < minR) break
                     }
                     if (r >= minR) {
                         mBubbs[mNumBubbs].apply {
-                            x = bx; y = by; this.r = min(maxR, r); color = 0xFF888888.toInt()
+                            x = bx
+                            y = by
+                            this.r = min(maxR, r)
+                            color = 0xFF888888.toInt()
                         }
                         mNumBubbs++
                         break
@@ -308,9 +347,5 @@ class PlatLogoActivity : Activity() {
                 }
             }
         }
-    }
-
-    companion object {
-        const val TOUCH_STATS = "touch.stats"
     }
 }
