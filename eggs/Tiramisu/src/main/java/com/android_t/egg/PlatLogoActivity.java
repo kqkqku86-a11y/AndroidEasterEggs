@@ -430,14 +430,13 @@ public class PlatLogoActivity extends Activity {
             int gray = (r + g + b) / 3;
 
             return new int[]{
-                    android.graphics.Color.rgb(r, g, b),                 // normal
-                    android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4), // agak gelap
-                    android.graphics.Color.rgb(gray, gray, gray),          // abu ringan
-                    android.graphics.Color.rgb(100, 100, 100),             // abu banget
+                    android.graphics.Color.rgb(r, g, b),
+                    android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4),
+                    android.graphics.Color.rgb(gray, gray, gray),
+                    android.graphics.Color.rgb(100, 100, 100),
             };
 
-            } catch (Exception e) {
-            };
+        } catch (Exception e) {
         }
     }
 
