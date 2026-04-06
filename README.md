@@ -24,10 +24,11 @@ This project contains the complete code for all Android Easter eggs, aiming to o
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/kqkqku86-a11y/AndroidEasterEggs?logo=github&label=release-fork&style=for-the-badge)](https://github.com/kqkqku86-a11y/AndroidEasterEggs/releases/latest)
 [![GitHub release (includes prereleases)](https://img.shields.io/github/v/release/kqkqku86-a11y/AndroidEasterEggs?logo=github&label=Beta-fork&include_prereleases&style=for-the-badge)](https://github.com/kqkqku86-a11y/AndroidEasterEggs/releases)
 
+[or debug version here](https://github.com/kqkqku86-a11y/AndroidEasterEggs/actions/workflows/artifact.yml)
 </div>
 
 * **Play Store** uses [Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756). This will cause app updates from other sources to fail. You will need to uninstall the Play Store version and install the other source's version to update from another source and vice versa.
-* **Pgyer** hosts the Alpha version. Alpha versions contain unfinished features that are not final and may be removed, reworked or replaced without notice. They may contain bugs.
+* **debug ver** debug version. debug versions contain unfinished features that are not final and may be removed, reworked or replaced without notice. They may contain bugs.
 
 ## Contributing
 
