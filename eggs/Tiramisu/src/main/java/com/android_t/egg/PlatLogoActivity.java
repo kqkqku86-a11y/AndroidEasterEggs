@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,15 @@ package com.android_t.egg;
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -54,23 +50,21 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
-/**
- * PINDAHKAN KELAS BUBBLE KE LUAR AGAR KOTLIN BISA MEMBACANYA
- */
-class Bubble {
-    public float x, y, r;
-    public int color;
-    public CharSequence text = null;
-    public Drawable drawable = null;
-}
-
 public class PlatLogoActivity extends Activity {
     private static final String TAG = "PlatLogoActivity";
-    private static final String S_EGG_UNLOCK_SETTING = "egg_mode_s";
+    private static final String S_EGG_UNLOCK_SETTING = "egg_mode_t";
 
     private SettableAnalogClock mClock;
     private ImageView mLogo;
     private BubblesDrawable mBg;
+
+    // FIX: Dijadikan public static agar file Kotlin (COLREmojiCompat) bisa mengaksesnya
+    public static class Bubble {
+        public float x, y, r;
+        public int color;
+        public CharSequence text = null;
+        public Drawable drawable = null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,7 +179,6 @@ public class PlatLogoActivity extends Activity {
                     float cy = getHeight() / 2f;
                     float angle = (float) toPositiveDegrees(Math.atan2(x - cx, y - cy));
                     
-                    // Putar jam secara visual
                     setRotation(angle);
 
                     int minutes = (int) (angle / 6);
@@ -197,7 +190,7 @@ public class PlatLogoActivity extends Activity {
                     float currentRot = getRotation() % 360;
                     if (currentRot < 0) currentRot += 360;
 
-                    // Cek jika jam diarahkan ke jam 1 (target Easter Egg T)
+                    // Target Tiramisu: Jam 13:00 (30 derajat)
                     if (currentRot >= 25 && currentRot <= 35) {
                         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                         launchNextStage(false);
@@ -208,10 +201,9 @@ public class PlatLogoActivity extends Activity {
         }
     }
 
-    class BubblesDrawable extends Drawable implements View.OnLongClickListener {
+    public class BubblesDrawable extends Drawable {
         private static final int MAX_BUBBS = 2000;
-        private int[] mColors;
-        private int mEmojiSet = -1;
+        private int[] mColors = {0xFF1A6ECC, 0xFF4285F4, 0xFF34A853, 0xFFFBBC05, 0xFFEA4335};
         private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
         private int mNumBubbs;
         private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -220,11 +212,7 @@ public class PlatLogoActivity extends Activity {
         public float padding = 0f;
         public float minR = 0f;
 
-        BubblesDrawable() {
-            int baseColor = 0xFF1A6ECC; // Default blue
-            mColors = new int[]{
-                    Color.BLUE, Color.CYAN, baseColor, Color.LTGRAY
-            };
+        public BubblesDrawable() {
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
             }
@@ -235,7 +223,6 @@ public class PlatLogoActivity extends Activity {
             if (getLevel() == 0) return;
             final float f = getLevel() / 10000f;
             mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setTextAlign(Paint.Align.CENTER);
             for (int j = 0; j < mNumBubbs; j++) {
                 if (mBubbs[j].color == 0 || mBubbs[j].r == 0) continue;
                 if (mBubbs[j].text != null) {
@@ -267,13 +254,14 @@ public class PlatLogoActivity extends Activity {
             if (w <= 0 || h <= 0) return;
             final float maxR = Math.min(w, h) / 3f;
             mNumBubbs = 0;
-            if (avoid > 0f) {
-                mBubbs[mNumBubbs].x = w / 2f;
-                mBubbs[mNumBubbs].y = h / 2f;
-                mBubbs[mNumBubbs].r = avoid;
-                mBubbs[mNumBubbs].color = 0;
-                mNumBubbs++;
-            }
+            
+            // Bubble pelindung tengah
+            mBubbs[mNumBubbs].x = w / 2f;
+            mBubbs[mNumBubbs].y = h / 2f;
+            mBubbs[mNumBubbs].r = avoid;
+            mBubbs[mNumBubbs].color = 0;
+            mNumBubbs++;
+
             for (int j = 0; j < MAX_BUBBS; j++) {
                 float x = (float) Math.random() * w;
                 float y = (float) Math.random() * h;
@@ -295,6 +283,5 @@ public class PlatLogoActivity extends Activity {
         @Override public void setAlpha(int alpha) { mPaint.setAlpha(alpha); }
         @Override public void setColorFilter(ColorFilter colorFilter) { mPaint.setColorFilter(colorFilter); }
         @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
-        @Override public boolean onLongClick(View v) { return false; }
     }
 }
