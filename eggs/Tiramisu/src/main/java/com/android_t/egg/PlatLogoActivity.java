@@ -415,7 +415,7 @@ public class PlatLogoActivity extends Activity {
     private int[] getWallpaperColors(Context context) {
         try {
             android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
-            android.graphics.Bitmap bmp = wm.getBitmap();
+            Bitmap bmp = ((BitmapDrawable) wm.getDrawable()).getBitmap();
 
             int width = bmp.getWidth();
             int height = bmp.getHeight();
