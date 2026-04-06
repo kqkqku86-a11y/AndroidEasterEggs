@@ -435,17 +435,14 @@ public class PlatLogoActivity extends Activity {
                     android.graphics.Color.rgb(r / 2, g / 2, b / 2),       // gelap
                     android.graphics.Color.rgb(gray, gray, gray),          // abu ringan
                     android.graphics.Color.rgb(100, 100, 100),             // abu banget
-                    android.graphics.Color.rgb(60, 60, 60)                 // abu gelap
             };
 
         } catch (Exception e) {
             return new int[]{
                     0xff4CAF50,
                     0xff388E3C,
-                    0xff1B5E20,
                     0xff888888,
-                    0xff555555,
-                    0xff222222
+                    0xff555555
             };
         }
     }
