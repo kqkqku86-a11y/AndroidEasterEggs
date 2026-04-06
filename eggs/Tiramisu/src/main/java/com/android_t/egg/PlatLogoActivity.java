@@ -435,6 +435,9 @@ public class PlatLogoActivity extends Activity {
                     android.graphics.Color.rgb(gray, gray, gray),          // abu ringan
                     android.graphics.Color.rgb(100, 100, 100),             // abu banget
             };
+
+            } catch (Exception e) {
+            };
         }
     }
 
