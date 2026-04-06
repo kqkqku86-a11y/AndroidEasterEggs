@@ -437,6 +437,8 @@ public class PlatLogoActivity extends Activity {
             };
 
         } catch (Exception e) {
+            int fallback = ContextCompat.getColor(PlatLogoActivity.this, android.R.color.holo_blue_light);
+            return new int[]{ fallback, fallback, fallback, fallback };
         }
     }
 
