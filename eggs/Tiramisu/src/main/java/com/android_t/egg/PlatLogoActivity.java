@@ -18,18 +18,21 @@ package com.android_t.egg;
 import static android.graphics.PixelFormat.TRANSLUCENT;
 
 import android.animation.ObjectAnimator;
-import androidx.core.content.ContextCompat;
-import android.graphics.Color;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -43,6 +46,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 
@@ -78,7 +83,7 @@ public class PlatLogoActivity extends Activity {
         mLogo.setVisibility(View.GONE);
         mLogo.setImageResource(R.drawable.t_android_logo);
         layout.addView(mLogo, lp);
-        mBg = new BubblesDrawable();
+        mBg = new BubblesDrawable(this); // <- pakai context
         mBg.setLevel(0);
         mBg.avoid = widgetSize / 2;
         mBg.padding = 0.5f * dp;
@@ -193,7 +198,6 @@ public class PlatLogoActivity extends Activity {
 
     /**
      * Custom analog clock view with touch interaction to adjust hands.
-     * Replaces AnalogClock subclass to avoid internal API dependency.
      */
     public class SettableAnalogClock extends View {
         private int mOverrideHour = 10;
@@ -225,11 +229,9 @@ public class PlatLogoActivity extends Activity {
             final float radius = Math.min(cx, cy) * 0.9f;
             final float strokeWidth = radius * 0.04f;
 
-            // Lingkaran jam
             mPaintCircle.setStrokeWidth(strokeWidth);
             canvas.drawCircle(cx, cy, radius, mPaintCircle);
 
-            // Jarum menit
             final float minAngle = (float) Math.toRadians(mOverrideMinute * 6 - 90);
             final float minLen = radius * 0.75f;
             mPaintMinute.setStrokeWidth(strokeWidth * 1.2f);
@@ -238,7 +240,6 @@ public class PlatLogoActivity extends Activity {
                     cy + (float) Math.sin(minAngle) * minLen,
                     mPaintMinute);
 
-            // Jarum jam
             final float hourAngle = (float) Math.toRadians(
                     (mOverrideHour % 12) * 30 + mOverrideMinute * 0.5f - 90);
             final float hourLen = radius * 0.5f;
@@ -248,7 +249,6 @@ public class PlatLogoActivity extends Activity {
                     cy + (float) Math.sin(hourAngle) * hourLen,
                     mPaintHour);
 
-            // Titik tengah
             canvas.drawCircle(cx, cy, strokeWidth * 1.5f, mPaintCenter);
         }
 
@@ -341,29 +341,63 @@ public class PlatLogoActivity extends Activity {
 
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         private static final int MAX_BUBBS = 2000;
+
+        // fallback Holo colors untuk Material v1
         private final int[] mColorIds = {
                 android.R.color.holo_blue_light,
                 android.R.color.holo_blue_dark,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_dark,
+                android.R.color.holo_green_light,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_red_light,
+                android.R.color.holo_red_dark,
         };
+
         private int[] mColors = new int[mColorIds.length];
         private int mEmojiSet = -1;
         private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
         private int mNumBubbs;
         private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
         public float avoid = 0f;
         public float padding = 0f;
         public float minR = 0f;
 
-        BubblesDrawable() {
-            for (int i = 0; i < mColorIds.length; i++) {
-                mColors[i] = ContextCompat.getColor(PlatLogoActivity.this, mColorIds[i]);
+        BubblesDrawable(Context context) {
+            int dynamicColor = getWallpaperDominantColor(context);
+            for (int i = 0; i < mColors.length; i++) {
+                mColors[i] = dynamicColor;
             }
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
+            }
+        }
+
+        // Ambil warna dominan wallpaper (rata-rata semua pixel)
+        private int getWallpaperDominantColor(Context context) {
+            try {
+                WallpaperManager wm = WallpaperManager.getInstance(context);
+                Drawable wallpaperDrawable = wm.getDrawable();
+                Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
+
+                long r = 0, g = 0, b = 0;
+                int width = wallpaperBitmap.getWidth();
+                int height = wallpaperBitmap.getHeight();
+                int count = 0;
+
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int pixel = wallpaperBitmap.getPixel(x, y);
+                        r += Color.red(pixel);
+                        g += Color.green(pixel);
+                        b += Color.blue(pixel);
+                        count++;
+                    }
+                }
+
+                return Color.rgb((int) (r / count), (int) (g / count), (int) (b / count));
+            } catch (Exception e) {
+                // fallback: pakai Holo blue light kalau error
+                return ContextCompat.getColor(context, android.R.color.holo_blue_light);
             }
         }
 
@@ -449,14 +483,14 @@ public class PlatLogoActivity extends Activity {
         }
 
         @Override
-        public void setAlpha(int alpha) { }
+        public void setAlpha(int alpha) { mPaint.setAlpha(alpha); }
 
         @Override
-        public void setColorFilter(ColorFilter colorFilter) { }
+        public void setColorFilter(ColorFilter colorFilter) { mPaint.setColorFilter(colorFilter); }
 
         @Override
         public int getOpacity() {
-            return TRANSLUCENT;
+            return PixelFormat.TRANSLUCENT;
         }
 
         @Override
