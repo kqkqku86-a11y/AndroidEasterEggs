@@ -83,7 +83,7 @@ public class PlatLogoActivity extends Activity {
         mLogo.setVisibility(View.GONE);
         mLogo.setImageResource(R.drawable.t_android_logo);
         layout.addView(mLogo, lp);
-        mBg = new BubblesDrawable(this); // <- pakai context
+        mBg = new BubblesDrawable(this);
         mBg.setLevel(0);
         mBg.avoid = widgetSize / 2;
         mBg.padding = 0.5f * dp;
@@ -342,17 +342,7 @@ public class PlatLogoActivity extends Activity {
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         private static final int MAX_BUBBS = 2000;
 
-        // fallback Holo colors untuk Material v1
-        private final int[] mColorIds = {
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_green_light,
-                android.R.color.holo_green_dark,
-                android.R.color.holo_red_light,
-                android.R.color.holo_red_dark,
-        };
-
-        private int[] mColors = new int[mColorIds.length];
+        private int[] mColors;
         private int mEmojiSet = -1;
         private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
         private int mNumBubbs;
@@ -363,10 +353,18 @@ public class PlatLogoActivity extends Activity {
         public float minR = 0f;
 
         BubblesDrawable(Context context) {
-            int dynamicColor = getWallpaperDominantColor(context);
-            for (int i = 0; i < mColors.length; i++) {
-                mColors[i] = dynamicColor;
-            }
+            int baseColor = getWallpaperDominantColor(context);
+
+            // Variasi warna: sangat gelap → gelap → normal → normal → terang → sangat terang
+            mColors = new int[]{
+                    darken(baseColor, 0.4f),   // sangat gelap
+                    darken(baseColor, 0.65f),  // gelap
+                    baseColor,                  // normal
+                    baseColor,                  // normal (duplikat agar seimbang)
+                    lighten(baseColor, 0.5f),  // terang
+                    lighten(baseColor, 0.75f), // sangat terang
+            };
+
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
             }
@@ -396,9 +394,27 @@ public class PlatLogoActivity extends Activity {
 
                 return Color.rgb((int) (r / count), (int) (g / count), (int) (b / count));
             } catch (Exception e) {
-                // fallback: pakai Holo blue light kalau error
+                // Fallback jika wallpaper tidak bisa diambil
                 return ContextCompat.getColor(context, android.R.color.holo_blue_light);
             }
+        }
+
+        // Gelapkan warna: factor 0.0 = hitam, 1.0 = warna asli
+        private int darken(int color, float factor) {
+            return Color.rgb(
+                    (int) (Color.red(color) * factor),
+                    (int) (Color.green(color) * factor),
+                    (int) (Color.blue(color) * factor)
+            );
+        }
+
+        // Terangkan warna: factor 0.0 = warna asli, 1.0 = putih
+        private int lighten(int color, float factor) {
+            return Color.rgb(
+                    (int) (Color.red(color) + (255 - Color.red(color)) * factor),
+                    (int) (Color.green(color) + (255 - Color.green(color)) * factor),
+                    (int) (Color.blue(color) + (255 - Color.blue(color)) * factor)
+            );
         }
 
         @Override
