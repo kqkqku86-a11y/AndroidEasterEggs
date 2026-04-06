@@ -432,7 +432,6 @@ public class PlatLogoActivity extends Activity {
             return new int[]{
                     android.graphics.Color.rgb(r, g, b),                 // normal
                     android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4), // agak gelap
-                    android.graphics.Color.rgb(r / 2, g / 2, b / 2),       // gelap
                     android.graphics.Color.rgb(gray, gray, gray),          // abu ringan
                     android.graphics.Color.rgb(100, 100, 100),             // abu banget
             };
