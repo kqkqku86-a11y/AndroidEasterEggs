@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -100,26 +100,20 @@ public class PlatLogoActivity extends Activity {
         setContentView(layout);
     }
 
-    /**
-     * Buat drawable logo Android T (lingkaran dengan huruf T).
-     */
     private Drawable createDrawable() {
-    // 1. Coba ambil gambar dari resource dulu
-    Drawable logo = ContextCompat.getDrawable(this, R.drawable.t_platlogo);
+        Drawable logo = ContextCompat.getDrawable(this, R.drawable.t_platlogo);
+        if (logo != null) {
+            return logo;
+        }
 
-    // 2. Jika gambar ada, langsung kembalikan gambarnya
-    if (logo != null) {
-        return logo;
+        GradientDrawable circle = new GradientDrawable();
+        circle.setShape(GradientDrawable.OVAL);
+        circle.setColor(0xFF1A6ECC);
+        circle.setSize(256, 256);
+        
+        return circle;
     }
 
-    // 3. Jika gambar TIDAK ada (null), baru jalankan kode di bawah ini
-    GradientDrawable circle = new GradientDrawable();
-    circle.setShape(GradientDrawable.OVAL);
-    circle.setColor(0xFF1A6ECC);
-    circle.setSize(256, 256);
-    
-    return circle; // Kembalikan lingkaran sebagai cadangan
-     }
     private boolean shouldWriteSettings() {
         return getPackageName().equals("android");
     }
@@ -232,9 +226,9 @@ public class PlatLogoActivity extends Activity {
             super(context);
         }
 
-        @Override
+        // PERBAIKAN: Hapus @Override dan ganti super.now()
         public Calendar now() {
-            Calendar realNow = super.now();
+            Calendar realNow = Calendar.getInstance(); 
             if (mOverride) {
                 if (mOverrideHour < 0) {
                     mOverrideHour = realNow.get(Calendar.HOUR_OF_DAY);
@@ -255,7 +249,6 @@ public class PlatLogoActivity extends Activity {
             switch (ev.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     mOverride = true;
-                    // pass through
                 case MotionEvent.ACTION_MOVE:
                     measureTouchPressure(ev);
                     float x = ev.getX();
@@ -330,7 +323,6 @@ public class PlatLogoActivity extends Activity {
 
     class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         private static final int MAX_BUBBS = 2000;
-
         private int[] mColors;
         private int mEmojiSet = -1;
         private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
@@ -342,9 +334,7 @@ public class PlatLogoActivity extends Activity {
         public float minR = 0f;
 
         BubblesDrawable() {
-            // Gunakan PlatLogoActivity.this karena BubblesDrawable adalah inner class
             int baseColor = getWallpaperDominantColor(PlatLogoActivity.this);
-
             mColors = new int[]{
                     darken(baseColor, 0.4f),
                     darken(baseColor, 0.65f),
@@ -353,7 +343,6 @@ public class PlatLogoActivity extends Activity {
                     lighten(baseColor, 0.5f),
                     lighten(baseColor, 0.75f),
             };
-
             for (int j = 0; j < mBubbs.length; j++) {
                 mBubbs[j] = new Bubble();
             }
@@ -363,24 +352,12 @@ public class PlatLogoActivity extends Activity {
             try {
                 WallpaperManager wm = WallpaperManager.getInstance(context);
                 Drawable wallpaperDrawable = wm.getDrawable();
-                Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
-
-                long r = 0, g = 0, b = 0;
-                int width = wallpaperBitmap.getWidth();
-                int height = wallpaperBitmap.getHeight();
-                int count = 0;
-
-                for (int x = 0; x < width; x++) {
-                    for (int y = 0; y < height; y++) {
-                        int pixel = wallpaperBitmap.getPixel(x, y);
-                        r += Color.red(pixel);
-                        g += Color.green(pixel);
-                        b += Color.blue(pixel);
-                        count++;
-                    }
+                if (wallpaperDrawable instanceof BitmapDrawable) {
+                    Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
+                    int pixel = wallpaperBitmap.getPixel(wallpaperBitmap.getWidth() / 2, wallpaperBitmap.getHeight() / 2);
+                    return pixel;
                 }
-
-                return Color.rgb((int) (r / count), (int) (g / count), (int) (b / count));
+                return ContextCompat.getColor(context, android.R.color.holo_blue_light);
             } catch (Exception e) {
                 return ContextCompat.getColor(context, android.R.color.holo_blue_light);
             }
@@ -408,7 +385,6 @@ public class PlatLogoActivity extends Activity {
             final float f = getLevel() / 10000f;
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setTextAlign(Paint.Align.CENTER);
-            int drawn = 0;
             for (int j = 0; j < mNumBubbs; j++) {
                 if (mBubbs[j].color == 0 || mBubbs[j].r == 0) continue;
                 if (mBubbs[j].text != null) {
@@ -419,7 +395,6 @@ public class PlatLogoActivity extends Activity {
                     mPaint.setColor(mBubbs[j].color);
                     canvas.drawCircle(mBubbs[j].x, mBubbs[j].y, mBubbs[j].r * f, mPaint);
                 }
-                drawn++;
             }
         }
 
@@ -447,6 +422,7 @@ public class PlatLogoActivity extends Activity {
         private void randomize() {
             final float w = getBounds().width();
             final float h = getBounds().height();
+            if (w <= 0 || h <= 0) return;
             final float maxR = Math.min(w, h) / 3f;
             mNumBubbs = 0;
             if (avoid > 0f) {
@@ -479,8 +455,6 @@ public class PlatLogoActivity extends Activity {
                     }
                 }
             }
-            Log.v(TAG, String.format("successfully placed %d bubbles (%d%%)",
-                    mNumBubbs, (int) (100f * mNumBubbs / MAX_BUBBS)));
         }
 
         @Override
