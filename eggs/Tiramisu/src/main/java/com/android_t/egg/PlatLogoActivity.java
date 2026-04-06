@@ -359,9 +359,9 @@ public class PlatLogoActivity extends Activity {
     public int color;
     public String text = null;
     public Drawable drawable = null;
-}
+    }
 
-class BubblesDrawable extends Drawable implements View.OnLongClickListener {
+    class BubblesDrawable extends Drawable implements View.OnLongClickListener {
 
     @Nullable
     private final static File COLRfile = COLREmojiCompat.findCOLRFontFile();
@@ -380,7 +380,7 @@ class BubblesDrawable extends Drawable implements View.OnLongClickListener {
             "system_accent2_600"
     };
 
-    // 🔥 DIUBAH (dari warna statis → dynamic)
+    // 🔥 sekarang pakai dynamic multi warna
     private int[] mColors = new int[6];
 
     private int mEmojiSet = -1;
@@ -396,11 +396,8 @@ class BubblesDrawable extends Drawable implements View.OnLongClickListener {
 
     BubblesDrawable() {
 
-        // 🔥 GANTI: ambil warna wallpaper
-        int dynamicColor = getWallpaperDominantColor(PlatLogoActivity.this);
-        for (int i = 0; i < mColors.length; i++) {
-            mColors[i] = dynamicColor;
-        }
+        // 🔥 ambil warna wallpaper + variasi
+        mColors = getWallpaperColors(PlatLogoActivity.this);
 
         if (COLRfile != null) {
             try {
@@ -414,34 +411,42 @@ class BubblesDrawable extends Drawable implements View.OnLongClickListener {
         }
     }
 
-    // 🔥 METHOD BARU (WAJIB ADA)
-    private int getWallpaperDominantColor(Context context) {
+    // 🔥 ambil warna wallpaper + bikin variasi
+    private int[] getWallpaperColors(Context context) {
         try {
             android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
-            android.graphics.drawable.Drawable drawable = wm.getDrawable();
-            android.graphics.Bitmap bmp = ((android.graphics.drawable.BitmapDrawable) drawable).getBitmap();
+            android.graphics.Bitmap bmp = wm.getBitmap();
 
-            long r = 0, g = 0, b = 0;
-            int count = 0;
+            int width = bmp.getWidth();
+            int height = bmp.getHeight();
 
-            for (int x = 0; x < bmp.getWidth(); x++) {
-                for (int y = 0; y < bmp.getHeight(); y++) {
-                    int pixel = bmp.getPixel(x, y);
-                    r += android.graphics.Color.red(pixel);
-                    g += android.graphics.Color.green(pixel);
-                    b += android.graphics.Color.blue(pixel);
-                    count++;
-                }
-            }
+            // ambil pixel tengah
+            int pixel = bmp.getPixel(width / 2, height / 2);
 
-            return android.graphics.Color.rgb(
-                    (int)(r / count),
-                    (int)(g / count),
-                    (int)(b / count)
-            );
+            int r = android.graphics.Color.red(pixel);
+            int g = android.graphics.Color.green(pixel);
+            int b = android.graphics.Color.blue(pixel);
+
+            int gray = (r + g + b) / 3;
+
+            return new int[]{
+                    android.graphics.Color.rgb(r, g, b),                 // normal
+                    android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4), // agak gelap
+                    android.graphics.Color.rgb(r / 2, g / 2, b / 2),       // gelap
+                    android.graphics.Color.rgb(gray, gray, gray),          // abu ringan
+                    android.graphics.Color.rgb(100, 100, 100),             // abu banget
+                    android.graphics.Color.rgb(60, 60, 60)                 // abu gelap
+            };
 
         } catch (Exception e) {
-            return 0xff2196F3;
+            return new int[]{
+                    0xff4CAF50,
+                    0xff388E3C,
+                    0xff1B5E20,
+                    0xff888888,
+                    0xff555555,
+                    0xff222222
+            };
         }
     }
 
