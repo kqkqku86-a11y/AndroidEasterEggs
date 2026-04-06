@@ -19,12 +19,16 @@ package com.android_t.egg;
 import static android.graphics.PixelFormat.TRANSLUCENT;
 
 import android.animation.ObjectAnimator;
+import android.app.WallpaperManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -351,99 +355,120 @@ public class PlatLogoActivity extends Activity {
     };
 
     public static class Bubble {
-        public float x, y, r;
-        public int color;
-        public String text = null;
-        public Drawable drawable = null;
+    public float x, y, r;
+    public int color;
+    public String text = null;
+    public Drawable drawable = null;
+}
+
+class BubblesDrawable extends Drawable implements View.OnLongClickListener {
+
+    @Nullable
+    private final static File COLRfile = COLREmojiCompat.findCOLRFontFile();
+
+    private final boolean isSupportedCOLR = COLRfile != null;
+
+    private final int MAX_BUBBS = isSupportedCOLR ? 2000 : 1000;
+
+    private final String[] mColorIds = {
+            "system_accent1_400",
+            "system_accent1_500",
+            "system_accent1_600",
+
+            "system_accent2_400",
+            "system_accent2_500",
+            "system_accent2_600"
+    };
+
+    // 🔥 DIUBAH (dari warna statis → dynamic)
+    private int[] mColors = new int[6];
+
+    private int mEmojiSet = -1;
+
+    private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
+    private int mNumBubbs;
+
+    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    public float avoid = 0f;
+    public float padding = 0f;
+    public float minR = 0f;
+
+    BubblesDrawable() {
+
+        // 🔥 GANTI: ambil warna wallpaper
+        int dynamicColor = getWallpaperDominantColor(PlatLogoActivity.this);
+        for (int i = 0; i < mColors.length; i++) {
+            mColors[i] = dynamicColor;
+        }
+
+        if (COLRfile != null) {
+            try {
+                mPaint.setTypeface(Typeface.createFromFile(COLRfile));
+            } catch (Throwable ignore) {
+            }
+        }
+
+        for (int j = 0; j < mBubbs.length; j++) {
+            mBubbs[j] = new Bubble();
+        }
     }
 
-    class BubblesDrawable extends Drawable implements View.OnLongClickListener {
+    // 🔥 METHOD BARU (WAJIB ADA)
+    private int getWallpaperDominantColor(Context context) {
+        try {
+            android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
+            android.graphics.drawable.Drawable drawable = wm.getDrawable();
+            android.graphics.Bitmap bmp = ((android.graphics.drawable.BitmapDrawable) drawable).getBitmap();
 
-        @Nullable
-        private final static File COLRfile = COLREmojiCompat.findCOLRFontFile();
+            long r = 0, g = 0, b = 0;
+            int count = 0;
 
-        private final boolean isSupportedCOLR = COLRfile != null;
-
-//        private static final int MAX_BUBBS = 2000;
-
-        private final int MAX_BUBBS = isSupportedCOLR ? 2000 : 1000;// Optimize memory usage
-
-//        private final int[] mColorIds = {
-//                android.R.color.system_accent1_400,
-//                android.R.color.system_accent1_500,
-//                android.R.color.system_accent1_600,
-//
-//                android.R.color.system_accent2_400,
-//                android.R.color.system_accent2_500,
-//                android.R.color.system_accent2_600,
-//        };
-        private final String[] mColorIds = {
-                "system_accent1_400",
-                "system_accent1_500",
-                "system_accent1_600",
-
-                "system_accent2_400",
-                "system_accent2_500",
-                "system_accent2_600"
-        };
-
-        //        private int[] mColors = new int[mColorIds.length];
-        private int[] mColors = {0xff598df7, 0xff3771df, 0xff2559bc, 0xff8a91a3, 0xff707687, 0xff585e6f};
-
-        private int mEmojiSet = -1;
-
-        private final Bubble[] mBubbs = new Bubble[MAX_BUBBS];
-        private int mNumBubbs;
-
-        private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        public float avoid = 0f;
-        public float padding = 0f;
-        public float minR = 0f;
-
-        BubblesDrawable() {
-            try {
-                for (int i = 0; i < mColorIds.length; i++) {
-                    mColors[i] = DrawableKt.getSystemColor(PlatLogoActivity.this, mColorIds[i]);
-                }
-            } catch (Exception ignore) {
-            }
-            if (COLRfile != null) {
-                try {
-                    mPaint.setTypeface(Typeface.createFromFile(COLRfile));
-                } catch (Throwable ignore) {
+            for (int x = 0; x < bmp.getWidth(); x++) {
+                for (int y = 0; y < bmp.getHeight(); y++) {
+                    int pixel = bmp.getPixel(x, y);
+                    r += android.graphics.Color.red(pixel);
+                    g += android.graphics.Color.green(pixel);
+                    b += android.graphics.Color.blue(pixel);
+                    count++;
                 }
             }
 
-            for (int j = 0; j < mBubbs.length; j++) {
-                mBubbs[j] = new Bubble();
-            }
+            return android.graphics.Color.rgb(
+                    (int)(r / count),
+                    (int)(g / count),
+                    (int)(b / count)
+            );
+
+        } catch (Exception e) {
+            return 0xff2196F3;
         }
+    }
 
-        @Override
-        public void draw(Canvas canvas) {
-            if (getLevel() == 0) return;
-            final float f = getLevel() / 10000f;
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setTextAlign(Paint.Align.CENTER);
-            int drawn = 0;
-            for (int j = 0; j < mNumBubbs; j++) {
-                if (mBubbs[j].color == 0 || mBubbs[j].r == 0) continue;
-                if (mBubbs[j].text != null && isSupportedCOLR) {
-                    mPaint.setTextSize(mBubbs[j].r * 1.75f);
-                    canvas.drawText(mBubbs[j].text, mBubbs[j].x,
-                            mBubbs[j].y + mBubbs[j].r * f * 0.6f, mPaint);
-                } else if (mBubbs[j].drawable != null) {
-                    COLREmojiCompat.drawCOLREmoji(canvas, mBubbs[j], f);
-                } else {
-                    mPaint.setColor(mBubbs[j].color);
-                    canvas.drawCircle(mBubbs[j].x, mBubbs[j].y, mBubbs[j].r * f, mPaint);
-                }
-                drawn++;
+    @Override
+    public void draw(Canvas canvas) {
+        if (getLevel() == 0) return;
+        final float f = getLevel() / 10000f;
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setTextAlign(Paint.Align.CENTER);
+        int drawn = 0;
+        for (int j = 0; j < mNumBubbs; j++) {
+            if (mBubbs[j].color == 0 || mBubbs[j].r == 0) continue;
+            if (mBubbs[j].text != null && isSupportedCOLR) {
+                mPaint.setTextSize(mBubbs[j].r * 1.75f);
+                canvas.drawText(mBubbs[j].text, mBubbs[j].x,
+                        mBubbs[j].y + mBubbs[j].r * f * 0.6f, mPaint);
+            } else if (mBubbs[j].drawable != null) {
+                COLREmojiCompat.drawCOLREmoji(canvas, mBubbs[j], f);
+            } else {
+                mPaint.setColor(mBubbs[j].color);
+                canvas.drawCircle(mBubbs[j].x, mBubbs[j].y, mBubbs[j].r * f, mPaint);
             }
+            drawn++;
         }
+    }
 
-        public void chooseEmojiSet() {
+    public void chooseEmojiSet() {
             mEmojiSet = (int) (Math.random() * EMOJI_SETS.length);
             final String[] emojiSet = EMOJI_SETS[mEmojiSet];
             Log.i(TAG, "chooseEmojiSet: " + mEmojiSet);
