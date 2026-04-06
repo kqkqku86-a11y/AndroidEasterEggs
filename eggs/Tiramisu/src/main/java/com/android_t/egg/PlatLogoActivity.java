@@ -413,34 +413,30 @@ public class PlatLogoActivity extends Activity {
 
     // 🔥 ambil warna wallpaper + bikin variasi
     private int[] getWallpaperColors(Context context) {
-        try {
-            android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
-            Bitmap bmp = ((BitmapDrawable) wm.getDrawable()).getBitmap();
+    android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
+    
+    // Mengambil bitmap dari wallpaper saat ini
+    Bitmap bmp = ((BitmapDrawable) wm.getDrawable()).getBitmap();
 
-            int width = bmp.getWidth();
-            int height = bmp.getHeight();
+    int width = bmp.getWidth();
+    int height = bmp.getHeight();
 
-            // ambil pixel tengah
-            int pixel = bmp.getPixel(width / 2, height / 2);
+    // Ambil pixel tengah
+    int pixel = bmp.getPixel(width / 2, height / 2);
 
-            int r = android.graphics.Color.red(pixel);
-            int g = android.graphics.Color.green(pixel);
-            int b = android.graphics.Color.blue(pixel);
+    int r = android.graphics.Color.red(pixel);
+    int g = android.graphics.Color.green(pixel);
+    int b = android.graphics.Color.blue(pixel);
 
-            int gray = (r + g + b) / 3;
+    int gray = (r + g + b) / 3;
 
-            return new int[]{
-                    android.graphics.Color.rgb(r, g, b),
-                    android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4),
-                    android.graphics.Color.rgb(gray, gray, gray),
-                    android.graphics.Color.rgb(100, 100, 100),
-            };
-
-        } catch (Exception e) {
-            int fallback = ContextCompat.getColor(PlatLogoActivity.this, android.R.color.holo_blue_light);
-            return new int[]{ fallback, fallback, fallback, fallback };
-        }
-    }
+    return new int[]{
+            android.graphics.Color.rgb(r, g, b),
+            android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4),
+            android.graphics.Color.rgb(gray, gray, gray),
+            android.graphics.Color.rgb(100, 100, 100),
+    };
+}
 
     @Override
     public void draw(Canvas canvas) {
