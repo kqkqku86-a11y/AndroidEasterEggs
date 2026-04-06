@@ -30,12 +30,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -46,6 +45,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.AnalogClock;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -53,27 +53,30 @@ import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 
+import java.util.Calendar;
+
 public class PlatLogoActivity extends Activity {
     private static final String TAG = "PlatLogoActivity";
     private static final String S_EGG_UNLOCK_SETTING = "egg_mode_s";
+
     private SettableAnalogClock mClock;
     private ImageView mLogo;
     private BubblesDrawable mBg;
 
     @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         getWindow().setNavigationBarColor(0);
         getWindow().setStatusBarColor(0);
+
         final ActionBar ab = getActionBar();
         if (ab != null) ab.hide();
+
         final FrameLayout layout = new FrameLayout(this);
+
         mClock = new SettableAnalogClock(this);
+
         final DisplayMetrics dm = getResources().getDisplayMetrics();
         final float dp = dm.density;
         final int minSide = Math.min(dm.widthPixels, dm.heightPixels);
@@ -81,20 +84,42 @@ public class PlatLogoActivity extends Activity {
         final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(widgetSize, widgetSize);
         lp.gravity = Gravity.CENTER;
         layout.addView(mClock, lp);
+
         mLogo = new ImageView(this);
         mLogo.setVisibility(View.GONE);
-        mLogo.setImageResource(R.drawable.t_android_logo);
+        mLogo.setImageDrawable(createDrawable());
         layout.addView(mLogo, lp);
-        mBg = new BubblesDrawable(this);
+
+        mBg = new BubblesDrawable();
         mBg.setLevel(0);
         mBg.avoid = widgetSize / 2;
         mBg.padding = 0.5f * dp;
         mBg.minR = 1 * dp;
         layout.setBackground(mBg);
-        layout.setOnLongClickListener(mBg);
+
         setContentView(layout);
     }
 
+    /**
+     * Buat drawable logo Android T (lingkaran dengan huruf T).
+     */
+    private Drawable createDrawable() {
+    // 1. Coba ambil gambar dari resource dulu
+    Drawable logo = ContextCompat.getDrawable(this, R.drawable.t_platlogo);
+
+    // 2. Jika gambar ada, langsung kembalikan gambarnya
+    if (logo != null) {
+        return logo;
+    }
+
+    // 3. Jika gambar TIDAK ada (null), baru jalankan kode di bawah ini
+    GradientDrawable circle = new GradientDrawable();
+    circle.setShape(GradientDrawable.OVAL);
+    circle.setColor(0xFF1A6ECC);
+    circle.setSize(256, 256);
+    
+    return circle; // Kembalikan lingkaran sebagai cadangan
+     }
     private boolean shouldWriteSettings() {
         return getPackageName().equals("android");
     }
@@ -198,115 +223,27 @@ public class PlatLogoActivity extends Activity {
         super.onStop();
     }
 
-    /**
-     * Custom analog clock dengan tampilan scalloped (bergerigi) seperti UI asli Android T.
-     * Jarum jam mengikuti waktu perangkat saat pertama dibuka.
-     */
-    public class SettableAnalogClock extends View {
-        // Waktu perangkat sebagai default
-        private int mOverrideHour;
-        private int mOverrideMinute;
-
-        private final Paint mPaintFace   = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint mPaintHour   = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint mPaintMinute = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint mPaintCenter = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Path  mScallopPath = new Path();
+    public class SettableAnalogClock extends AnalogClock {
+        private int mOverrideHour = -1;
+        private int mOverrideMinute = -1;
+        private boolean mOverride = false;
 
         public SettableAnalogClock(Context context) {
             super(context);
-
-            // Inisialisasi jarum dari waktu perangkat sekarang
-            java.util.Calendar now = java.util.Calendar.getInstance();
-            mOverrideHour   = now.get(java.util.Calendar.HOUR_OF_DAY);
-            mOverrideMinute = now.get(java.util.Calendar.MINUTE);
-
-            // Warna abu-abu muda untuk face (seperti screenshot)
-            mPaintFace.setColor(0xFFD8D8E0);
-            mPaintFace.setStyle(Paint.Style.FILL);
-
-            // Jarum menit: abu-abu keunguan
-            mPaintMinute.setColor(0xFF8888AA);
-            mPaintMinute.setStrokeCap(Paint.Cap.ROUND);
-            mPaintMinute.setStyle(Paint.Style.STROKE);
-
-            // Jarum jam: biru
-            mPaintHour.setColor(0xFF2244CC);
-            mPaintHour.setStrokeCap(Paint.Cap.ROUND);
-            mPaintHour.setStyle(Paint.Style.STROKE);
-
-            // Titik tengah
-            mPaintCenter.setColor(0xFF2244CC);
-            mPaintCenter.setStyle(Paint.Style.FILL);
-        }
-
-        /**
-         * Membuat path scalloped (bergerigi keluar) — lingkaran dengan tonjolan setengah lingkaran
-         * mengelilingi tepian, mirip tampilan jam Android T asli.
-         */
-        private void buildScallopPath(float cx, float cy, float radius) {
-            mScallopPath.reset();
-            int scallops = 16;         // jumlah gerigi
-            float scallopR = radius * 0.08f; // radius tiap gerigi
-            float innerR   = radius - scallopR;
-
-            for (int i = 0; i < scallops; i++) {
-                double angle = 2 * Math.PI * i / scallops - Math.PI / 2;
-                float peakX = cx + (float) Math.cos(angle) * (innerR + scallopR);
-                float peakY = cy + (float) Math.sin(angle) * (innerR + scallopR);
-                RectF oval = new RectF(
-                        peakX - scallopR, peakY - scallopR,
-                        peakX + scallopR, peakY + scallopR
-                );
-                float startDeg = (float) Math.toDegrees(angle) + 90f;
-                if (i == 0) {
-                    float startX = cx + (float) Math.cos(angle - Math.PI / scallops) * innerR;
-                    float startY = cy + (float) Math.sin(angle - Math.PI / scallops) * innerR;
-                    mScallopPath.moveTo(startX, startY);
-                }
-                mScallopPath.arcTo(oval, startDeg + 180f, 180f);
-            }
-            mScallopPath.close();
         }
 
         @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            final float cx = getWidth() / 2f;
-            final float cy = getHeight() / 2f;
-            final float radius = Math.min(cx, cy) * 0.88f;
-            final float strokeWidth = radius * 0.055f;
-
-            // Gambar background scalloped
-            buildScallopPath(cx, cy, radius);
-            canvas.drawPath(mScallopPath, mPaintFace);
-
-            // Jarum menit
-            final float minAngle = (float) Math.toRadians(mOverrideMinute * 6 - 90);
-            final float minLen   = radius * 0.62f;
-            mPaintMinute.setStrokeWidth(strokeWidth);
-            canvas.drawLine(
-                    cx, cy,
-                    cx + (float) Math.cos(minAngle) * minLen,
-                    cy + (float) Math.sin(minAngle) * minLen,
-                    mPaintMinute
-            );
-
-            // Jarum jam
-            final float hourAngle = (float) Math.toRadians(
-                    (mOverrideHour % 12) * 30f + mOverrideMinute * 0.5f - 90f);
-            final float hourLen = radius * 0.42f;
-            mPaintHour.setStrokeWidth(strokeWidth * 1.15f);
-            canvas.drawLine(
-                    cx, cy,
-                    cx + (float) Math.cos(hourAngle) * hourLen,
-                    cy + (float) Math.sin(hourAngle) * hourLen,
-                    mPaintHour
-            );
-
-            // Titik tengah
-            canvas.drawCircle(cx, cy, strokeWidth * 0.9f, mPaintCenter);
+        public Calendar now() {
+            Calendar realNow = super.now();
+            if (mOverride) {
+                if (mOverrideHour < 0) {
+                    mOverrideHour = realNow.get(Calendar.HOUR_OF_DAY);
+                }
+                realNow.set(Calendar.HOUR_OF_DAY, mOverrideHour);
+                realNow.set(Calendar.MINUTE, mOverrideMinute);
+                realNow.set(Calendar.SECOND, 0);
+            }
+            return realNow;
         }
 
         double toPositiveDegrees(double rad) {
@@ -317,11 +254,12 @@ public class PlatLogoActivity extends Activity {
         public boolean onTouchEvent(MotionEvent ev) {
             switch (ev.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    return true;
+                    mOverride = true;
+                    // pass through
                 case MotionEvent.ACTION_MOVE:
                     measureTouchPressure(ev);
-                    float x  = ev.getX();
-                    float y  = ev.getY();
+                    float x = ev.getX();
+                    float y = ev.getY();
                     float cx = getWidth() / 2f;
                     float cy = getHeight() / 2f;
                     float angle = (float) toPositiveDegrees(Math.atan2(x - cx, y - cy));
@@ -403,8 +341,9 @@ public class PlatLogoActivity extends Activity {
         public float padding = 0f;
         public float minR = 0f;
 
-        BubblesDrawable(Context context) {
-            int baseColor = getWallpaperDominantColor(context);
+        BubblesDrawable() {
+            // Gunakan PlatLogoActivity.this karena BubblesDrawable adalah inner class
+            int baseColor = getWallpaperDominantColor(PlatLogoActivity.this);
 
             mColors = new int[]{
                     darken(baseColor, 0.4f),
