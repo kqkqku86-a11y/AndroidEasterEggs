@@ -18,4 +18,9 @@ jobs:
         run: git fetch upstream
 
       - name: Term
+        run: |
+          git config --global user.name "kqkqku86-a11y"
+          git config --global user.email "kqkqku86@gmail.com"
+
+      - name: Term
         run: git pull upstream main --no-rebase --allow-unrelated-histories
