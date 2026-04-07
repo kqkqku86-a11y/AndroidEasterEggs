@@ -51,6 +51,10 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import android.net.Uri;
+import android.provider.Settings;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.annotation.Nullable;
 
 import com.dede.basic.views.AnalogClock;
@@ -137,11 +141,16 @@ public void onRequestPermissionsResult(int requestCode, String[] permissions, in
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             recreate();
         } else {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle("Android 12-13 Easter Egg Permission")
                     .setMessage("To access the Easter Egg on Android 12/13, you need to allow storage permission. Don't worry, we don't take your data.")
                     .setCancelable(false)
-                    .setPositiveButton("OK", (dialog, which) -> finish())
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.fromParts("package", getPackageName(), null));
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Kembali", (dialog, which) -> finish())
                     .show();
         }
     }
