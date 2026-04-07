@@ -52,4 +52,6 @@ Copyright (C) 2016 The Android Open Source Project
     </integer-array>
 
     <string name="n_android_nickname" translatable="false">Nougat</string>
+
+    <string name="n_android_nickname_preview" translatable="false">N Preview</string>
 </resources>
