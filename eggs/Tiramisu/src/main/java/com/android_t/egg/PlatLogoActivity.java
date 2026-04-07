@@ -35,8 +35,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -92,17 +94,24 @@ protected void onCreate(Bundle savedInstanceState) {
     final ActionBar ab = getActionBar();
     if (ab != null) ab.hide();
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            requestPermissions(
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQ_STORAGE
-            );
-            return;
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    if (!Environment.isExternalStorageManager()) {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+        return;
     }
+} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+
+        requestPermissions(
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                REQ_STORAGE
+        );
+        return;
+    }
+}
 
     final FrameLayout layout = new FrameLayout(this);
 
@@ -121,13 +130,23 @@ protected void onCreate(Bundle savedInstanceState) {
     mLogo.setImageResource(R.drawable.t_platlogo);
     layout.addView(mLogo, lp);
 
-    mBg = new BubblesDrawable();
-    mBg.setLevel(0);
-    mBg.avoid = widgetSize / 2;
-    mBg.padding = 0.5f * dp;
-    mBg.minR = 1 * dp;
-    layout.setBackground(mBg);
-    layout.setOnLongClickListener(mBg);
+    WallpaperManager wm = WallpaperManager.getInstance(this);
+Drawable wallpaper = wm.getDrawable();
+
+mBg = new BubblesDrawable();
+mBg.setLevel(10000);
+mBg.avoid = widgetSize / 2;
+mBg.padding = 0.5f * dp;
+mBg.minR = 1 * dp;
+
+Drawable[] layers = new Drawable[]{
+        wallpaper,
+        mBg
+};
+
+LayerDrawable layerDrawable = new LayerDrawable(layers);
+layout.setBackground(layerDrawable);
+layout.setOnLongClickListener(mBg);
 
     setContentView(layout);
 }
@@ -150,7 +169,7 @@ public void onRequestPermissionsResult(int requestCode, String[] permissions, in
                         intent.setData(Uri.fromParts("package", getPackageName(), null));
                         startActivity(intent);
                     })
-                    .setNegativeButton("Kembali", (dialog, which) -> finish())
+                    .setNegativeButton("Back", (dialog, which) -> finish())
                     .show();
         }
     }
