@@ -18,13 +18,16 @@ package com.android_t.egg;
 
 import static android.graphics.PixelFormat.TRANSLUCENT;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.WallpaperManager;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -34,6 +37,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
@@ -63,6 +67,7 @@ public class PlatLogoActivity extends Activity {
     private static final String TAG = "PlatLogoActivity";
 
     private static final String S_EGG_UNLOCK_SETTING = "t_egg_mode";
+    private static final int REQ_STORAGE = 100;
 
     private SettableAnalogClock mClock;
     private ImageView mLogo;
@@ -74,42 +79,73 @@ public class PlatLogoActivity extends Activity {
 //    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-        getWindow().setNavigationBarColor(0);
-        getWindow().setStatusBarColor(0);
+    getWindow().setNavigationBarColor(0);
+    getWindow().setStatusBarColor(0);
 
-        final ActionBar ab = getActionBar();
-        if (ab != null) ab.hide();
+    final ActionBar ab = getActionBar();
+    if (ab != null) ab.hide();
 
-        final FrameLayout layout = new FrameLayout(this);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
-        mClock = new SettableAnalogClock(this);
-
-        final DisplayMetrics dm = getResources().getDisplayMetrics();
-        final float dp = dm.density;
-        final int minSide = Math.min(dm.widthPixels, dm.heightPixels);
-        final int widgetSize = (int) (minSide * 0.75);
-        final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(widgetSize, widgetSize);
-        lp.gravity = Gravity.CENTER;
-        layout.addView(mClock, lp);
-
-        mLogo = new ImageView(this);
-        mLogo.setVisibility(View.GONE);
-        mLogo.setImageResource(R.drawable.t_platlogo);
-        layout.addView(mLogo, lp);
-
-        mBg = new BubblesDrawable();
-        mBg.setLevel(0);
-        mBg.avoid = widgetSize / 2;
-        mBg.padding = 0.5f * dp;
-        mBg.minR = 1 * dp;
-        layout.setBackground(mBg);
-        layout.setOnLongClickListener(mBg);
-
-        setContentView(layout);
+            requestPermissions(
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQ_STORAGE
+            );
+            return;
+        }
     }
+
+    final FrameLayout layout = new FrameLayout(this);
+
+    mClock = new SettableAnalogClock(this);
+
+    final DisplayMetrics dm = getResources().getDisplayMetrics();
+    final float dp = dm.density;
+    final int minSide = Math.min(dm.widthPixels, dm.heightPixels);
+    final int widgetSize = (int) (minSide * 0.75);
+    final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(widgetSize, widgetSize);
+    lp.gravity = Gravity.CENTER;
+    layout.addView(mClock, lp);
+
+    mLogo = new ImageView(this);
+    mLogo.setVisibility(View.GONE);
+    mLogo.setImageResource(R.drawable.t_platlogo);
+    layout.addView(mLogo, lp);
+
+    mBg = new BubblesDrawable();
+    mBg.setLevel(0);
+    mBg.avoid = widgetSize / 2;
+    mBg.padding = 0.5f * dp;
+    mBg.minR = 1 * dp;
+    layout.setBackground(mBg);
+    layout.setOnLongClickListener(mBg);
+
+    setContentView(layout);
+}
+
+@Override
+public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    if (requestCode == REQ_STORAGE) {
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            recreate();
+        } else {
+            new AlertDialog.Builder(this)
+                    .setTitle("Android 12-13 Easter Egg Permission")
+                    .setMessage("To access the Easter Egg on Android 12/13, you need to allow storage permission. Don't worry, we don't take your data.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", (dialog, which) -> finish())
+                    .show();
+        }
+    }
+}
 
     private boolean shouldWriteSettings() {
 //        return getPackageName().equals("android");
@@ -413,31 +449,39 @@ public class PlatLogoActivity extends Activity {
 
     // 🔥 ambil warna wallpaper + bikin variasi
     private int[] getWallpaperColors(Context context) {
-    android.app.WallpaperManager wm = android.app.WallpaperManager.getInstance(context);
-    
-    // Mengambil bitmap dari wallpaper saat ini
+    WallpaperManager wm = WallpaperManager.getInstance(context);
     Bitmap bmp = ((BitmapDrawable) wm.getDrawable()).getBitmap();
 
     int width = bmp.getWidth();
     int height = bmp.getHeight();
 
-    // Ambil pixel tengah
-    int pixel = bmp.getPixel(width / 2, height / 2);
+    int[] pixels = new int[width * height];
+    bmp.getPixels(pixels, 0, width, 0, 0, width, height);
 
-    int r = android.graphics.Color.red(pixel);
-    int g = android.graphics.Color.green(pixel);
-    int b = android.graphics.Color.blue(pixel);
+    long sumR = 0;
+    long sumG = 0;
+    long sumB = 0;
+
+    for (int pixel : pixels) {
+        sumR += Color.red(pixel);
+        sumG += Color.green(pixel);
+        sumB += Color.blue(pixel);
+    }
+
+    int count = pixels.length;
+    int r = (int) (sumR / count);
+    int g = (int) (sumG / count);
+    int b = (int) (sumB / count);
 
     int gray = (r + g + b) / 3;
 
     return new int[]{
-            android.graphics.Color.rgb(r, g, b),
-            android.graphics.Color.rgb(r * 3/4, g * 3/4, b * 3/4),
-            android.graphics.Color.rgb(gray, gray, gray),
-            android.graphics.Color.rgb(100, 100, 100),
+            Color.rgb(r, g, b),
+            Color.rgb((r * 3) / 4, (g * 3) / 4, (b * 3) / 4),
+            Color.rgb(gray, gray, gray),
+            Color.rgb(100, 100, 100),
     };
 }
-
     @Override
     public void draw(Canvas canvas) {
         if (getLevel() == 0) return;
