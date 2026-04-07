@@ -12,4 +12,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Terminal
-        run: git status
+        run: git remote add upstream https://github.com/hushenghao/AndroidEasterEggs.git
+
+      - name: Term
+        run: git fetch upstream
+
+      - name: Term
+        run: git pull upstream main
