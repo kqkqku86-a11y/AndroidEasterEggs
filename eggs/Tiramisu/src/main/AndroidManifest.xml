@@ -5,6 +5,8 @@
     <!-- used for cat notifications -->
 <!--    <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME" />-->
 
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
     <!-- used to save cat images -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
