@@ -23,7 +23,7 @@
             android:exported="true"
             android:icon="@drawable/t_platlogo"
             android:label="@string/t_egg_name"
-            android:theme="@android:style/Theme.Wallpaper.NoTitleBar.Fullscreen" />
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".beta.PlatLogoActivity"
