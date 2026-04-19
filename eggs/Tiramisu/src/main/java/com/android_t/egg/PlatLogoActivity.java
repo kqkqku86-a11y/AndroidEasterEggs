@@ -79,16 +79,77 @@ public class PlatLogoActivity extends Activity {
     private ImageView mLogo;
     private BubblesDrawable mBg;
 
-// Update the initial level from 10000 to 0 in the onCreate method
-@Override
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//    }
+
+    @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // Other initialization code
 
-    // Change initial level to fix bubble visibility issue
-    bubble.setLevel(0); // Changed from 10000 to 0
+    getWindow().setNavigationBarColor(0);
+    getWindow().setStatusBarColor(0);
+
+    final ActionBar ab = getActionBar();
+    if (ab != null) ab.hide();
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    if (!Environment.isExternalStorageManager()) {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+        return;
+    }
+} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+
+        requestPermissions(
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                REQ_STORAGE
+        );
+        return;
+    }
 }
 
+    final FrameLayout layout = new FrameLayout(this);
+
+    mClock = new SettableAnalogClock(this);
+
+    final DisplayMetrics dm = getResources().getDisplayMetrics();
+    final float dp = dm.density;
+    final int minSide = Math.min(dm.widthPixels, dm.heightPixels);
+    final int widgetSize = (int) (minSide * 0.75);
+    final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(widgetSize, widgetSize);
+    lp.gravity = Gravity.CENTER;
+    layout.addView(mClock, lp);
+
+    mLogo = new ImageView(this);
+    mLogo.setVisibility(View.GONE);
+    mLogo.setImageResource(R.drawable.t_platlogo);
+    layout.addView(mLogo, lp);
+
+    WallpaperManager wm = WallpaperManager.getInstance(this);
+Drawable wallpaper = wm.getDrawable();
+
+mBg = new BubblesDrawable();
+mBg.setLevel(0);
+mBg.avoid = widgetSize / 2;
+mBg.padding = 0.5f * dp;
+mBg.minR = 1 * dp;
+
+Drawable[] layers = new Drawable[]{
+        wallpaper,
+        mBg
+};
+
+LayerDrawable layerDrawable = new LayerDrawable(layers);
+layout.setBackground(layerDrawable);
+layout.setOnLongClickListener(mBg);
+
+    setContentView(layout);
+}
 
 @Override
 public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
