@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.androidx.compose.constraintlayout)
     implementation(libs.google.accompanist.drawablepainter)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.dionsegijn.konfetti)
