@@ -27,7 +27,7 @@ android {
     defaultConfig {
         applicationId = "com.dede.android_eggs"
         versionCode = 75
-        versionName = "4.4.5-alpha-fork"
+        versionName = "4.5.0-alpha-fork"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         base.archivesName.set("easter_eggs_${versionName}_${versionCode}")
@@ -137,6 +137,7 @@ dependencies {
 
     implementation(project(":eggs:RocketLauncher"))
     implementation(project(":eggs:AndroidNext"))
+    implementation(project(":eggs:CinnamonBun"))
     implementation(project(":eggs:Baklava"))
     implementation(project(":eggs:VanillaIceCream"))
     implementation(project(":eggs:UpsideDownCake"))
