@@ -461,31 +461,35 @@ public class PlatLogoActivity extends Activity {
                 }
             }
             int slice = ((this.mStars.length / 4) / 4) * 4;
-            for (int p = 0; p < 4; p++) {
-            float value = (p + 1.0f) / 3.0f;
-            if (isSRgbExtSupported) {
-            mStarPaint.setColor(packHdrWhite(value, 1.0f));
-            } else {
-            mStarPaint.setColor(Color.WHITE);
-            }
-            this.mStarPaint.setStrokeWidth(this.mSize * (p + 1));
-            if (inWarp) {
-            canvas.drawLines(this.mStars, p * slice, slice, this.mStarPaint);
-            }
-            canvas.drawPoints(this.mStars, p * slice, slice, this.mStarPaint);
-            }
 
-            canvas.drawPoints(this.mStars, p * slice, slice, this.mStarPaint);
-            }
-            if (inWarp) {
-                float frac = (this.mWarp - 1.0f) / 15.0f;
-                if (isSRgbExtSupported) {
-                    canvas.drawColor(packHdrWhite(2.0f, frac * frac));
-                } else {
-                    canvas.drawColor(packColor(2.0f, frac * frac));
-                }
-            }
-        }
+for (int p = 0; p < 4; p++) {
+    float value = (p + 1.0f) / 3.0f;
+
+    if (isSRgbExtSupported) {
+        mStarPaint.setColor(packHdrWhite(value, 1.0f));
+    } else {
+        mStarPaint.setColor(Color.WHITE);
+    }
+
+    this.mStarPaint.setStrokeWidth(this.mSize * (p + 1));
+
+    if (inWarp) {
+        canvas.drawLines(this.mStars, p * slice, slice, this.mStarPaint);
+    }
+
+    canvas.drawPoints(this.mStars, p * slice, slice, this.mStarPaint);
+}
+
+if (inWarp) {
+    float frac = (this.mWarp - 1.0f) / 15.0f;
+
+    if (isSRgbExtSupported) {
+        canvas.drawColor(packHdrWhite(2.0f, frac * frac));
+    } else {
+        canvas.drawColor(packColor(2.0f, frac * frac));
+    }
+}
+}
 
         @Override // android.graphics.drawable-nodpi.Drawable
         public void setAlpha(int alpha) {
