@@ -462,18 +462,14 @@ public class PlatLogoActivity extends Activity {
             }
             int slice = ((this.mStars.length / 4) / 4) * 4;
             for (int p = 0; p < 4; p++) {
-                float value = (p + 1.0f) / 3.0f;
-                if (isSRgbExtSupported) {
-                    mStarPaint.setColor(packHdrWhite(value, 1.0f));
-                } else {
-                    mStarPaint.setColor(packColor(value, 1.0f));
-                }
-                this.mStarPaint.setStrokeWidth(this.mSize * (p + 1));
-                if (inWarp) {
-                    canvas.drawLines(this.mStars, p * slice, slice, this.mStarPaint);
-                }
-                canvas.drawPoints(this.mStars, p * slice, slice, this.mStarPaint);
-            }
+            mStarPaint.setColor(Color.WHITE); // putih polos
+            this.mStarPaint.setStrokeWidth(this.mSize * (p + 1));
+            if (inWarp) {
+            canvas.drawLines(this.mStars, p * slice, slice, this.mStarPaint);
+    }
+
+    canvas.drawPoints(this.mStars, p * slice, slice, this.mStarPaint);
+    }
             if (inWarp) {
                 float frac = (this.mWarp - 1.0f) / 15.0f;
                 if (isSRgbExtSupported) {
