@@ -1,10 +1,14 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
 package com.android_k.egg
 
 import android.app.Activity
-import com.android_k.egg.RescalingContainer
 import android.content.ComponentName
 import android.content.pm.PackageManager
-import android.os.Bundle
 
 class DessertCase : Activity() {
 
@@ -14,12 +18,13 @@ class DessertCase : Activity() {
     override fun onStart() {
         super.onStart()
 
-        val pm = packageManager
+        val pm: PackageManager = packageManager
         val cn = ComponentName(this, DessertCaseDream::class.java)
 
         if (pm.getComponentEnabledSetting(cn)
             != PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         ) {
+            // Slog.v("DessertCase", "ACHIEVEMENT UNLOCKED")
             pm.setComponentEnabledSetting(
                 cn,
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
@@ -29,9 +34,8 @@ class DessertCase : Activity() {
 
         mView = DessertCaseView(this)
 
-        val container = DessertCaseView.RescalingContainer(this).apply {
-            setView(mView)
-        }
+        val container = DessertCaseView.RescalingContainer(this)
+        container.setView(mView)
 
         setContentView(container)
     }

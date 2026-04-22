@@ -3,13 +3,18 @@ package com.android_k.egg
 import android.content.Context
 
 object SpUtils {
-    fun getInt(context: Context, key: String, def: Int): Int {
-        val prefs = context.getSharedPreferences("egg", Context.MODE_PRIVATE)
-        return prefs.getInt(key, def)
+
+    private const val PREF = "egg_prefs"
+
+    fun getLong(context: Context, key: String, def: Long): Long {
+        return context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+            .getLong(key, def)
     }
 
-    fun putInt(context: Context, key: String, value: Int) {
-        val prefs = context.getSharedPreferences("egg", Context.MODE_PRIVATE)
-        prefs.edit().putInt(key, value).apply()
+    fun putLong(context: Context, key: String, value: Long) {
+        context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(key, value)
+            .apply()
     }
 }

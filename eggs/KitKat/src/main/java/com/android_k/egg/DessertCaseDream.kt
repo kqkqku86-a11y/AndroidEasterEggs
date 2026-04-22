@@ -1,7 +1,12 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+
 package com.android_k.egg
 
 import android.service.dreams.DreamService
-import com.android_k.egg.RescalingContainer
 
 class DessertCaseDream : DreamService() {
 
@@ -11,13 +16,13 @@ class DessertCaseDream : DreamService() {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-
         setInteractive(false)
 
         mView = DessertCaseView(this)
-        mContainer = DessertCaseView.RescalingContainer(this).apply {
-            setView(mView)
-        }
+
+        mContainer = DessertCaseView.RescalingContainer(this)
+
+        mContainer.setView(mView)
 
         setContentView(mContainer)
     }
