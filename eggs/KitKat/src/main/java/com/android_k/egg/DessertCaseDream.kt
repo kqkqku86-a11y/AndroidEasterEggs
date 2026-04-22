@@ -1,6 +1,7 @@
 package com.android_k.egg
 
 import android.service.dreams.DreamService
+import com.android_k.egg.RescalingContainer
 
 class DessertCaseDream : DreamService() {
 
