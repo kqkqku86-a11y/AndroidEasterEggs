@@ -23,15 +23,41 @@ class DessertCaseView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyle) {
 
     companion object {
-        const val START_DELAY = 5000
-        const val DELAY = 2000
-        const val DURATION = 500
+    const val START_DELAY = 5000
+    const val DELAY = 2000
+    const val DURATION = 500
 
-        const val TAG_POS = 0x2000001
-        const val TAG_SPAN = 0x2000002
+    const val TAG_POS = 0x2000001
+    const val TAG_SPAN = 0x2000002
 
-        const val SCALE = 0.25f
+    const val SCALE = 0.25f
+
+    private val PASTRIES = intArrayOf(
+        R.drawable.k_dessert_kitkat,
+        R.drawable.k_dessert_android
+    )
+
+    private val RARE_PASTRIES = intArrayOf(
+        R.drawable.k_dessert_cupcake,
+        R.drawable.k_dessert_donut
+    )
+
+    private val XRARE_PASTRIES = intArrayOf(
+        R.drawable.k_dessert_petitfour
+    )
+
+    private val XXRARE_PASTRIES = intArrayOf(
+        R.drawable.k_dessert_zombiegingerbread
+    )
+
+    private fun convertToAlphaMask(b: Bitmap): Bitmap {
+        val a = Bitmap.createBitmap(b.width, b.height, Bitmap.Config.ALPHA_8)
+        val c = Canvas(a)
+        val pt = Paint(Paint.ANTI_ALIAS_FLAG)
+        c.drawBitmap(b, 0f, 0f, pt)
+        return a
     }
+}
 
     private val mDrawables = SparseArray<Drawable>()
     private val mFreeList = HashSet<Point>()
@@ -183,34 +209,6 @@ class DessertCaseView @JvmOverloads constructor(
                 .scaleY(scale.toFloat())
                 .setDuration(DURATION.toLong())
                 .start()
-        }
-    }
-
-    companion object {
-        private val PASTRIES = intArrayOf(
-            R.drawable.k_dessert_kitkat,
-            R.drawable.k_dessert_android
-        )
-
-        private val RARE_PASTRIES = intArrayOf(
-            R.drawable.k_dessert_cupcake,
-            R.drawable.k_dessert_donut
-        )
-
-        private val XRARE_PASTRIES = intArrayOf(
-            R.drawable.k_dessert_petitfour
-        )
-
-        private val XXRARE_PASTRIES = intArrayOf(
-            R.drawable.k_dessert_zombiegingerbread
-        )
-
-        private fun convertToAlphaMask(b: Bitmap): Bitmap {
-            val a = Bitmap.createBitmap(b.width, b.height, Bitmap.Config.ALPHA_8)
-            val c = Canvas(a)
-            val pt = Paint(Paint.ANTI_ALIAS_FLAG)
-            c.drawBitmap(b, 0f, 0f, pt)
-            return a
         }
     }
 }
