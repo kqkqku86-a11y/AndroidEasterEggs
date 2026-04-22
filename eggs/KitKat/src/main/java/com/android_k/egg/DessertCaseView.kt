@@ -91,13 +91,10 @@ class DessertCaseView @JvmOverloads constructor(
                 opts.inBitmap = loaded
                 loaded = BitmapFactory.decodeResource(res, resid, opts)
 
-                val d = BitmapDrawable(res, convertToAlphaMask(loaded!!)).apply {
-                    setBounds(0, 0, mCellSize, mCellSize)
-                }
-
-                mDrawables.append(resid, d)
-            }
-        }
+                val d = BitmapDrawable(res, loaded!!)
+        mDrawables.append(resid, d)
+    }
+    }
     }
 
     private val mJuggle = object : Runnable {
