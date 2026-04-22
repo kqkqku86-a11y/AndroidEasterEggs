@@ -6,3 +6,7 @@ android {
     namespace = "com.android_k.egg"
     resourcePrefix = "k_"
 }
+
+dependencies {
+    implementation(project(":basic"))
+}
