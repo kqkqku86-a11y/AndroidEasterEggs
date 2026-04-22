@@ -121,7 +121,6 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:theme"))
     implementation(project(":core:icons"))
-    implementation project(":core:basic")
     implementation(project(":core:settings"))
     implementation(project(":core:composable"))
     implementation(project(":core:shortcut"))
