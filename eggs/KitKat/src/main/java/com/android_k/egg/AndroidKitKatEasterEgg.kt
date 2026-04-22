@@ -3,6 +3,7 @@ package com.android_k.egg
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import com.dede.basic.provider.Component
 import com.dede.basic.provider.*
 import dagger.Module
 import dagger.Provides
