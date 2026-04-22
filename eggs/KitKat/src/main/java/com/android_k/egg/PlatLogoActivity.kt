@@ -85,7 +85,7 @@ class PlatLogoActivity : Activity() {
 
             val lp2 = FrameLayout.LayoutParams(lp).apply {
                 gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-                bottomMargin = 10 * p
+                bottomMargin = (10f * p).toInt()
             }
 
             addView(tv, lp2)
@@ -104,7 +104,7 @@ class PlatLogoActivity : Activity() {
             val offset = letter.rotation.toInt() % 360
 
             letter.animate()
-                .rotationBy((if (Math.random() > 0.5f) 360 else -360) - offset)
+                .rotationBy((if (Math.random() > 0.5f) 360f else -360f) - offset)
                 .setInterpolator(DecelerateInterpolator())
                 .setDuration(700)
                 .start()
