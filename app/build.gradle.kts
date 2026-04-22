@@ -129,6 +129,8 @@ dependencies {
     implementation(project(":core:alterable-adaptive-icon"))
     implementation(project(":core:custom-tab-browser"))
 
+    implementation(project(":basic"))
+
     implementation(project(":feature:cat-editor"))
     implementation(project(":feature:analog-clock-widget"))
     implementation(project(":feature:neko-controls-widget"))
