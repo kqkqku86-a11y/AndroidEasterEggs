@@ -1,6 +1,7 @@
 package com.android_k.egg
 
 import android.app.Activity
+import com.android_k.egg.RescalingContainer
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Bundle
