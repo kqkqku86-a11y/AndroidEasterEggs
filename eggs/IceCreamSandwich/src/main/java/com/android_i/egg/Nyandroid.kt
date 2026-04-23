@@ -4,18 +4,13 @@ import android.animation.TimeAnimator
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
-import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
-import kotlin.math.max
 import kotlin.random.Random
 
 class Nyandroid : Activity() {
@@ -33,23 +28,23 @@ class Nyandroid : Activity() {
 
         inner class FlyingCat(ctx: Context) : ImageView(ctx) {
 
-    var v = 0f
-    var dist = 0f
+            var v = 0f
+            var dist = 0f
 
-    private var _z = 0f   // ✔️ cuma SATU
+            private var _z = 0f
 
-    var component: ComponentName? = null
+            var component: ComponentName? = null
 
-    fun getNyZ(): Float = _z
+            fun getNyZ(): Float = _z
 
-    fun setNyZ(value: Float) {
-        _z = value
-    }
+            fun setNyZ(value: Float) {
+                _z = value
+            }
 
-    init {
-        setImageResource(R.drawable.i_nyandroid_anim)
-    }
-}
+            init {
+                setImageResource(R.drawable.i_nyandroid_anim)
+            }
+
             fun reset() {
                 val scale = lerp(0.1f, 2f, _z)
                 scaleX = scale
@@ -97,7 +92,6 @@ class Nyandroid : Activity() {
                 val cat = FlyingCat(context)
                 addView(cat, wrap)
 
-                // 🔥 FIXED: pakai setter manual
                 cat.setNyZ((it.toFloat() / NUM_CATS) * (it.toFloat() / NUM_CATS))
 
                 cat.reset()
@@ -124,6 +118,7 @@ class Nyandroid : Activity() {
         }
 
         override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+            super.onSizeChanged(w, h, oldw, oldh)
             post {
                 reset()
                 anim?.start()
