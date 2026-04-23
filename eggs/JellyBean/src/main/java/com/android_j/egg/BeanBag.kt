@@ -5,11 +5,9 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.AttributeSet
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -60,16 +58,10 @@ class BeanBag : Activity() {
             fun rand(a: Float, b: Float) = lerp(a, b, rng.nextFloat())
             fun flip() = rng.nextBoolean()
             fun mag(x: Float, y: Float) = sqrt(x * x + y * y)
-            fun clamp(x: Float, a: Float, b: Float) = when {
-                x < a -> a
-                x > b -> b
-                else -> x
-            }
 
             const val NUM_BEANS = 40
             const val MIN_SCALE = 0.2f
             const val MAX_SCALE = 1f
-            const val LUCKY = 0.001f
             const val MAX_RADIUS = (576 * MAX_SCALE).toInt()
 
             val BEANS = intArrayOf(
@@ -78,14 +70,6 @@ class BeanBag : Activity() {
                 R.drawable.j_redbean1,
                 R.drawable.j_redbean2,
                 R.drawable.j_redbeandroid
-            )
-
-            val COLORS = intArrayOf(
-                0xFF00CC00.toInt(),
-                0xFFCC0000.toInt(),
-                0xFF0000CC.toInt(),
-                0xFFFFFF00.toInt(),
-                0xFFFF8000.toInt()
             )
         }
 
@@ -104,7 +88,7 @@ class BeanBag : Activity() {
             var va = 0f
 
             var r = 0f
-            var z = 0f
+            var depth = 0f   // ✅ FIX (bukan z)
 
             var w = 0
             var h = 0
@@ -124,7 +108,7 @@ class BeanBag : Activity() {
             fun reset() {
                 pickBean()
 
-                val scale = lerp(MIN_SCALE, MAX_SCALE, z)
+                val scale = lerp(MIN_SCALE, MAX_SCALE, depth)
                 scaleX = scale
                 scaleY = scale
 
@@ -133,8 +117,8 @@ class BeanBag : Activity() {
                 a = rand(0f, 360f)
                 va = rand(-30f, 30f)
 
-                vx = rand(-40f, 40f) * z
-                vy = rand(-40f, 40f) * z
+                vx = rand(-40f, 40f) * depth
+                vy = rand(-40f, 40f) * depth
 
                 if (flip()) {
                     _x = if (vx < 0) boardWidth + 2 * r else -r * 4
@@ -164,7 +148,7 @@ class BeanBag : Activity() {
                 val b = Bean(context)
                 addView(b, wrap)
 
-                b.z = (i.toFloat() / NUM_BEANS).let { it * it }
+                b.depth = (i.toFloat() / NUM_BEANS).let { it * it }
                 b.reset()
             }
 
@@ -180,8 +164,8 @@ class BeanBag : Activity() {
                         v.update(sec)
 
                         v.rotation = v.a
-                        v.x = v._x - v.pivotX
-                        v.y = v._y - v.pivotY
+                        v.x = v._x - v.pivotX   // ✅ FIX penting
+                        v.y = v._y - v.pivotY   // ✅ FIX penting
 
                         if (v._x < -MAX_RADIUS ||
                             v._x > boardWidth + MAX_RADIUS ||
