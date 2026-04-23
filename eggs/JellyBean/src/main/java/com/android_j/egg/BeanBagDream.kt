@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package com.android_j.egg;
+package com.android_j.egg
 
-import android.service.dreams.DreamService;
+import android.service.dreams.DreamService
 
+class BeanBagDream : DreamService() {
 
-public class BeanBagDream extends DreamService {
+    private lateinit var mBoard: BeanBag.Board
 
-    private BeanBag.Board mBoard;
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        setInteractive(false);// changed
-        setFullscreen(true);
-        mBoard = new BeanBag.Board(this, null);
-        setContentView(mBoard);
+        setInteractive(false)
+        setFullscreen(true)
+
+        mBoard = BeanBag.Board(this, null)
+        setContentView(mBoard)
     }
 
-    @Override
-    public void onDreamingStarted() {
-        super.onDreamingStarted();
-        mBoard.startAnimation();
+    override fun onDreamingStarted() {
+        super.onDreamingStarted()
+        mBoard.startAnimation()
     }
 
-    @Override
-    public void onDreamingStopped() {
-        mBoard.stopAnimation();
-        super.onDreamingStopped();
+    override fun onDreamingStopped() {
+        mBoard.stopAnimation()
+        super.onDreamingStopped()
     }
 }
