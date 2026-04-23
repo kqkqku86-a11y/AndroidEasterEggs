@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Terminal
         run: git remote add upstream https://github.com/hushenghao/AndroidEasterEggs.git
