@@ -123,150 +123,150 @@ class BeanBag : Activity() {
 
         inner class Bean(context: Context, attrs: AttributeSet?) : ImageView(context, attrs) {
 
-            var x = 0f
-            var y = 0f
-            var a = 0f
+    var _x = 0f
+    var _y = 0f
+    var a = 0f
 
-            var va = 0f
-            var vx = 0f
-            var vy = 0f
+    var va = 0f
+    var vx = 0f
+    var vy = 0f
 
-            var r = 0f
-            var z = 0f
+    var r = 0f
+    var _z = 0f
 
-            var h = 0
-            var w = 0
+    var h = 0
+    var w = 0
 
-            var grabbed = false
-            var grabx = 0f
-            var graby = 0f
-            var grabtime: Long = 0
-            var grabx_offset = 0f
-            var graby_offset = 0f
+    var grabbed = false
+    var grabx = 0f
+    var graby = 0f
+    var grabtime: Long = 0
+    var grabx_offset = 0f
+    var graby_offset = 0f
 
-            private fun pickBean() {
-                var beanId = pickInt(BEANS)
+    private fun pickBean() {
+        var beanId = pickInt(BEANS)
 
-                if (randfrange(0f, 1f) <= LUCKY) {
-                    beanId = R.drawable.j_jandycane
-                }
+        if (randfrange(0f, 1f) <= LUCKY) {
+            beanId = R.drawable.j_jandycane
+        }
 
-                val bean = context.resources.getDrawable(beanId) as BitmapDrawable
-                bean.setTargetDensity(480)
-                val bmp = bean.bitmap
+        val bean = context.resources.getDrawable(beanId) as BitmapDrawable
+        bean.setTargetDensity(480)
+        val bmp = bean.bitmap
 
-                h = bmp.height
-                w = bmp.width
+        h = bmp.height
+        w = bmp.width
 
-                setImageDrawable(bean)
+        setImageDrawable(bean)
 
-                val color = pickInt(COLORS)
-                val cm = ColorMatrix()
-                val m = cm.array
+        val color = pickInt(COLORS)
+        val cm = ColorMatrix()
+        val m = cm.array
 
-                m[0] = ((color and 0x00FF0000) shr 16) / 255f
-                m[5] = ((color and 0x0000FF00) shr 8) / 255f
-                m[10] = (color and 0x000000FF) / 255f
+        m[0] = ((color and 0x00FF0000) shr 16) / 255f
+        m[5] = ((color and 0x0000FF00) shr 8) / 255f
+        m[10] = (color and 0x000000FF) / 255f
 
-                val pt = Paint(Paint.ANTI_ALIAS_FLAG)
-                pt.colorFilter = ColorMatrixColorFilter(cm)
+        val pt = Paint(Paint.ANTI_ALIAS_FLAG)
+        pt.colorFilter = ColorMatrixColorFilter(cm)
 
-                setLayerType(
-                    View.LAYER_TYPE_HARDWARE,
-                    if (beanId == R.drawable.j_jandycane) null else pt
-                )
+        setLayerType(
+            View.LAYER_TYPE_HARDWARE,
+            if (beanId == R.drawable.j_jandycane) null else pt
+        )
+    }
+
+    fun reset() {
+        pickBean()
+
+        val scale = lerp(MIN_SCALE, MAX_SCALE, _z)
+        scaleX = scale
+        scaleY = scale
+
+        r = 0.3f * maxOf(h, w) * scale
+
+        a = randfrange(0f, 360f)
+        va = randfrange(-30f, 30f)
+
+        vx = randfrange(-40f, 40f) * _z
+        vy = randfrange(-40f, 40f) * _z
+
+        val boardh = boardHeight.toFloat()
+        val boardw = boardWidth.toFloat()
+
+        if (flip()) {
+            _x = if (vx < 0) boardw + 2 * r else -r * 4f
+            _y = randfrange(0f, boardh - 3 * r) * 0.5f +
+                    if (vy < 0) boardh * 0.5f else 0f
+        } else {
+            _y = if (vy < 0) boardh + 2 * r else -r * 4f
+            _x = randfrange(0f, boardw - 3 * r) * 0.5f +
+                    if (vx < 0) boardw * 0.5f else 0f
+        }
+    }
+
+    fun update(dt: Float) {
+        if (grabbed) {
+            vx = vx * 0.75f + ((grabx - _x) / dt) * 0.25f
+            _x = grabx
+
+            vy = vy * 0.75f + ((graby - _y) / dt) * 0.25f
+            _y = graby
+        } else {
+            _x += vx * dt
+            _y += vy * dt
+            a += va * dt
+        }
+    }
+
+    fun overlap(other: Bean): Float {
+        val dx = _x - other._x
+        val dy = _y - other._y
+        return mag(dx, dy) - r - other.r
+    }
+
+    private fun isTouchedBean(e: MotionEvent): Boolean {
+        val drawable = drawable as? BitmapDrawable ?: return false
+        val bmp = drawable.bitmap
+
+        val sx = bmp.width.toFloat() / width
+        val sy = bmp.height.toFloat() / height
+
+        val px = (e.x * sx).toInt()
+        val py = (e.y * sy).toInt()
+
+        if (px !in 0 until bmp.width || py !in 0 until bmp.height) return false
+
+        return Color.alpha(bmp.getPixel(px, py)) > 0
+    }
+
+    override fun onTouchEvent(e: MotionEvent): Boolean {
+        when (e.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if (!isTouchedBean(e)) return false
+                grabbed = true
+                grabx_offset = e.rawX - _x
+                graby_offset = e.rawY - _y
+                va = 0f
             }
 
-            fun reset() {
-                pickBean()
-
-                val scale = lerp(MIN_SCALE, MAX_SCALE, z)
-                scaleX = scale
-                scaleY = scale
-
-                r = 0.3f * maxOf(h, w) * scale
-
-                a = randfrange(0f, 360f)
-                va = randfrange(-30f, 30f)
-
-                vx = randfrange(-40f, 40f) * z
-                vy = randfrange(-40f, 40f) * z
-
-                val boardh = boardHeight.toFloat()
-                val boardw = boardWidth.toFloat()
-
-                if (flip()) {
-                    x = if (vx < 0) boardw + 2 * r else -r * 4f
-                    y = randfrange(0f, boardh - 3 * r) * 0.5f +
-                            if (vy < 0) boardh * 0.5f else 0f
-                } else {
-                    y = if (vy < 0) boardh + 2 * r else -r * 4f
-                    x = randfrange(0f, boardw - 3 * r) * 0.5f +
-                            if (vx < 0) boardw * 0.5f else 0f
-                }
+            MotionEvent.ACTION_MOVE -> {
+                grabx = e.rawX - grabx_offset
+                graby = e.rawY - graby_offset
+                grabtime = e.eventTime
             }
 
-            fun update(dt: Float) {
-                if (grabbed) {
-                    vx = vx * 0.75f + ((grabx - x) / dt) * 0.25f
-                    x = grabx
-
-                    vy = vy * 0.75f + ((graby - y) / dt) * 0.25f
-                    y = graby
-                } else {
-                    x += vx * dt
-                    y += vy * dt
-                    a += va * dt
-                }
-            }
-
-            fun overlap(other: Bean): Float {
-                val dx = x - other.x
-                val dy = y - other.y
-                return mag(dx, dy) - r - other.r
-            }
-
-            private fun isTouchedBean(e: MotionEvent): Boolean {
-                val drawable = drawable as? BitmapDrawable ?: return false
-                val bmp = drawable.bitmap
-
-                val sx = bmp.width.toFloat() / width
-                val sy = bmp.height.toFloat() / height
-
-                val px = (e.x * sx).toInt()
-                val py = (e.y * sy).toInt()
-
-                if (px !in 0 until bmp.width || py !in 0 until bmp.height) return false
-
-                return Color.alpha(bmp.getPixel(px, py)) > 0
-            }
-
-            override fun onTouchEvent(e: MotionEvent): Boolean {
-                when (e.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        if (!isTouchedBean(e)) return false
-                        grabbed = true
-                        grabx_offset = e.rawX - x
-                        graby_offset = e.rawY - y
-                        va = 0f
-                    }
-
-                    MotionEvent.ACTION_MOVE -> {
-                        grabx = e.rawX - grabx_offset
-                        graby = e.rawY - graby_offset
-                        grabtime = e.eventTime
-                    }
-
-                    MotionEvent.ACTION_UP,
-                    MotionEvent.ACTION_CANCEL -> {
-                        grabbed = false
-                        var a = randsign() * clamp(mag(vx, vy) * 0.33f, 0f, 1080f)
-                        va = randfrange(a * 0.5f, a)
-                    }
-                }
-                return true
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_CANCEL -> {
+                grabbed = false
+                var a = randsign() * clamp(mag(vx, vy) * 0.33f, 0f, 1080f)
+                va = randfrange(a * 0.5f, a)
             }
         }
+        return true
+    }
+}
 
         private var boardWidth = 0
         private var boardHeight = 0
@@ -289,7 +289,7 @@ class BeanBag : Activity() {
                 val b = Bean(context, null)
                 addView(b, wrap)
 
-                b.z = (i.toFloat() / NUM_BEANS)
+                b._z = (i.toFloat() / NUM_BEANS)
                 b.z *= b.z
 
                 b.reset()
