@@ -2,8 +2,7 @@ name: Auto Archive Repo
 
 on:
   schedule:
-    - cron: '0 17 31 4 *' # 31 April 17:00 UTC = 31 April 00:00 WIB
-  workflow_dispatch:
+    - cron: '0 17 30 4 *'
 
 jobs:
   archive:
