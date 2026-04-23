@@ -35,22 +35,29 @@ class Nyandroid : Activity() {
 
             var v = 0f
             var dist = 0f
-            var z = 0f
+
+            // ✅ SOLUSI 2 FIX: rename backing field
+            private var _z = 0f
+
             var component: ComponentName? = null
+
+            // ✅ Java-style getter/setter manual (NO conflict)
+            fun getZ(): Float = _z
+            fun setZ(value: Float) { _z = value }
 
             init {
                 setImageResource(R.drawable.i_nyandroid_anim)
             }
 
             fun reset() {
-                val scale = lerp(0.1f, 2f, z)
+                val scale = lerp(0.1f, 2f, _z)
                 scaleX = scale
                 scaleY = scale
 
                 x = -scale * width
                 y = rand(0f, (this@Board.height - height).toFloat())
 
-                v = lerp(100f, 1000f, z)
+                v = lerp(100f, 1000f, _z)
                 dist = 0f
             }
 
@@ -89,8 +96,8 @@ class Nyandroid : Activity() {
                 val cat = FlyingCat(context)
                 addView(cat, wrap)
 
-                cat.z = (it.toFloat() / NUM_CATS)
-                cat.z *= cat.z
+                // 🔥 FIXED: pakai setter manual
+                cat.setZ((it.toFloat() / NUM_CATS) * (it.toFloat() / NUM_CATS))
 
                 cat.reset()
                 cat.x = rand(0f, width.toFloat())
@@ -130,6 +137,7 @@ class Nyandroid : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
         )
