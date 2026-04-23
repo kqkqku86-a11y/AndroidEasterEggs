@@ -42,8 +42,12 @@ class Nyandroid : Activity() {
             var component: ComponentName? = null
 
             // ✅ Java-style getter/setter manual (NO conflict)
-            fun getZ(): Float = _z
-            fun setZ(value: Float) { _z = value }
+            private var _z = 0f
+
+            fun getNyZ(): Float = _z
+            fun setNyZ(value: Float) {
+            _z = value
+            }
 
             init {
                 setImageResource(R.drawable.i_nyandroid_anim)
@@ -97,7 +101,7 @@ class Nyandroid : Activity() {
                 addView(cat, wrap)
 
                 // 🔥 FIXED: pakai setter manual
-                cat.setZ((it.toFloat() / NUM_CATS) * (it.toFloat() / NUM_CATS))
+                cat.setNyZ((it.toFloat() / NUM_CATS) * (it.toFloat() / NUM_CATS))
 
                 cat.reset()
                 cat.x = rand(0f, width.toFloat())
