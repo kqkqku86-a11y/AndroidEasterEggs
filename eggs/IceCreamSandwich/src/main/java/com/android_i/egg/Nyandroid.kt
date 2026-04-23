@@ -33,26 +33,23 @@ class Nyandroid : Activity() {
 
         inner class FlyingCat(ctx: Context) : ImageView(ctx) {
 
-            var v = 0f
-            var dist = 0f
+    var v = 0f
+    var dist = 0f
 
-            // ✅ SOLUSI 2 FIX: rename backing field
-            private var _z = 0f
+    private var _z = 0f   // ✔️ cuma SATU
 
-            var component: ComponentName? = null
+    var component: ComponentName? = null
 
-            // ✅ Java-style getter/setter manual (NO conflict)
-            private var _z = 0f
+    fun getNyZ(): Float = _z
 
-            fun getNyZ(): Float = _z
-            fun setNyZ(value: Float) {
-            _z = value
-            }
+    fun setNyZ(value: Float) {
+        _z = value
+    }
 
-            init {
-                setImageResource(R.drawable.i_nyandroid_anim)
-            }
-
+    init {
+        setImageResource(R.drawable.i_nyandroid_anim)
+    }
+}
             fun reset() {
                 val scale = lerp(0.1f, 2f, _z)
                 scaleX = scale
