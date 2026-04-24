@@ -13,7 +13,12 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
 
+    if: github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch'
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Auto merge Dependabot PRs
         run: |
           for pr in $(gh pr list --author "dependabot[bot]" --state open --json url -q '.[].url'); do
