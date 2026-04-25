@@ -74,11 +74,27 @@ public class PlatLogoActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setDecorFitsSystemWindows(false);
-        getWindow().setNavigationBarColor(0);
-        getWindow().setStatusBarColor(0);
-        getWindow().getDecorView().getWindowInsetsController()
-                .hide(WindowInsets.Type.systemBars());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    getWindow().setDecorFitsSystemWindows(false);
+
+    WindowInsetsController controller = getWindow().getInsetsController();
+    if (controller != null) {
+        controller.hide(WindowInsets.Type.systemBars());
+    }
+
+} else {
+    getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    );
+}
+
+getWindow().setNavigationBarColor(0);
+getWindow().setStatusBarColor(0);
+
+getWindow().setNavigationBarColor(0);
+getWindow().setStatusBarColor(0);
 
         ActionBar ab = getActionBar();
         if (ab != null) ab.hide();
