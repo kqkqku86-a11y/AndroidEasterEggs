@@ -154,7 +154,7 @@ public class PlatLogoActivity extends Activity {
     // ======================
     // STARFIELD (INNER CLASS)
     // ======================
-    private static class Starfield extends Drawable {
+    public static class Starfield extends Drawable {
 
         private final Paint mPaint = new Paint();
         private float mWarp = 1f;
@@ -188,7 +188,7 @@ public class PlatLogoActivity extends Activity {
     // ======================
     // RUMBLE PACK (INNER CLASS)
     // ======================
-    private class RumblePack implements Handler.Callback {
+    public class RumblePack implements Handler.Callback {
 
         private final VibratorManager mVibeMan;
         private final HandlerThread mThread;
