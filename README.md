@@ -1,1 +1,1 @@
-This repository has been moved to: [AdroidEasterEggs](github.com/kqkqku86-a11y/AdroidEasterEggs)
+This repository has been moved to: [AdroidEasterEggs](https://github.com/kqkqku86-a11y/AdroidEasterEggs)
