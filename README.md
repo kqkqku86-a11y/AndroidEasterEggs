@@ -63,9 +63,9 @@ development here.
 
 <a href="https://www.star-history.com/?repos=kqkqku86-a11y%2FAndroidEasterEggs&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&theme=dark&legend=top-left&sealed_token=01JKbAgx5RMHrTK17-kxujr00h4HhbNXv9sleNOMIhIrK_DhlvjPcE0L2OR3ThS8Ylhj6KzJam-5u094xtH1C_wi81y0h1x-ruATF82WsTkyAEx64KlLpA" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&legend=top-left&sealed_token=01JKbAgx5RMHrTK17-kxujr00h4HhbNXv9sleNOMIhIrK_DhlvjPcE0L2OR3ThS8Ylhj6KzJam-5u094xtH1C_wi81y0h1x-ruATF82WsTkyAEx64KlLpA" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=kqkqku86-a11y/AndroidEasterEggs&type=date&legend=top-left&sealed_token=01JKbAgx5RMHrTK17-kxujr00h4HhbNXv9sleNOMIhIrK_DhlvjPcE0L2OR3ThS8Ylhj6KzJam-5u094xtH1C_wi81y0h1x-ruATF82WsTkyAEx64KlLpA" />
  </picture>
 </a>
 
