@@ -80,7 +80,7 @@ ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 aboutlibraries-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "about-libraries" }
 shreyaspatil-capturable = "dev.shreyaspatil:capturable:3.0.1"
-dionsegijn-konfetti = "nl.dionsegijn:konfetti-compose:2.0.5"
+dionsegijn-konfetti = "nl.dionsegijn:konfetti-compose:2.2.0"
 blurhash-android = "io.github.hushenghao:blurhash-android:1.0.1"
 squircle-shape = "com.stoyanvuchev:squircle-shape:5.4.0"
 #skydoves-cloudy = "com.github.skydoves:cloudy:0.5.0"
