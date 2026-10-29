@@ -31,7 +31,7 @@ aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "abo
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version = "0.15.0" }
 
 [libraries]
-androidx-appcompat = "androidx.appcompat:appcompat:1.7.1"
+androidx-appcompat = "androidx.appcompat:appcompat:1.8.0"
 androidx-core = "androidx.core:core-ktx:1.18.0"
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 androidx-lifecycle = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycle" }
