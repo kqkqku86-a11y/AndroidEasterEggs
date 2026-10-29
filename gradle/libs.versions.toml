@@ -44,7 +44,7 @@ androidx-browser = "androidx.browser:browser:1.9.0"
 androidx-window = "androidx.window:window:1.5.1"
 androidx-room = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
-google-material = "com.google.android.material:material:1.13.0"
+google-material = "com.google.android.material:material:1.14.0"
 androidx-startup = "androidx.startup:startup-runtime:1.2.0"
 androidx-shapes = "androidx.graphics:graphics-shapes:1.1.0"
 androidx-splashscreen = "androidx.core:core-splashscreen:1.2.0"
